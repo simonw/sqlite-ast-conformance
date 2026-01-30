@@ -1,0 +1,35 @@
+{
+  "sql": "SELECT * FROM foo CROSS JOIN bar",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "star"
+        },
+        "alias": null
+      }
+    ],
+    "from": [
+      {
+        "type": "table",
+        "name": "foo",
+        "alias": null,
+        "join_type": null
+      },
+      {
+        "type": "table",
+        "name": "bar",
+        "alias": null,
+        "join_type": "CROSS JOIN"
+      }
+    ],
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "sql": "SELECT substr('hello', 2, 3)",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "function",
+          "name": "substr",
+          "args": [
+            {
+              "type": "string",
+              "value": "hello"
+            },
+            {
+              "type": "integer",
+              "value": 2
+            },
+            {
+              "type": "integer",
+              "value": 3
+            }
+          ],
+          "distinct": false
+        },
+        "alias": null
+      }
+    ],
+    "from": null,
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}

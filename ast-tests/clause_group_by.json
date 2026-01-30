@@ -1,0 +1,44 @@
+{
+  "sql": "SELECT x, count(*) FROM foo GROUP BY x",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "name",
+          "name": "x"
+        },
+        "alias": null
+      },
+      {
+        "expr": {
+          "type": "function",
+          "name": "count",
+          "args": [],
+          "distinct": false
+        },
+        "alias": null
+      }
+    ],
+    "from": [
+      {
+        "type": "table",
+        "name": "foo",
+        "alias": null,
+        "join_type": null
+      }
+    ],
+    "where": null,
+    "group_by": [
+      {
+        "type": "name",
+        "name": "x"
+      }
+    ],
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}

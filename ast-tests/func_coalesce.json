@@ -1,0 +1,45 @@
+{
+  "sql": "SELECT coalesce(x, y, 0) FROM foo",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "function",
+          "name": "coalesce",
+          "args": [
+            {
+              "type": "name",
+              "name": "x"
+            },
+            {
+              "type": "name",
+              "name": "y"
+            },
+            {
+              "type": "integer",
+              "value": 0
+            }
+          ],
+          "distinct": false
+        },
+        "alias": null
+      }
+    ],
+    "from": [
+      {
+        "type": "table",
+        "name": "foo",
+        "alias": null,
+        "join_type": null
+      }
+    ],
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}

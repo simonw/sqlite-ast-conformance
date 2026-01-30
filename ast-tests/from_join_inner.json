@@ -1,0 +1,61 @@
+{
+  "sql": "SELECT * FROM foo JOIN bar ON foo.id = bar.foo_id",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "star"
+        },
+        "alias": null
+      }
+    ],
+    "from": [
+      {
+        "type": "table",
+        "name": "foo",
+        "alias": null,
+        "join_type": null
+      },
+      {
+        "type": "table",
+        "name": "bar",
+        "alias": null,
+        "join_type": "JOIN",
+        "on": {
+          "type": "binary",
+          "op": "=",
+          "left": {
+            "type": "dot",
+            "left": {
+              "type": "name",
+              "name": "foo"
+            },
+            "right": {
+              "type": "name",
+              "name": "id"
+            }
+          },
+          "right": {
+            "type": "dot",
+            "left": {
+              "type": "name",
+              "name": "bar"
+            },
+            "right": {
+              "type": "name",
+              "name": "foo_id"
+            }
+          }
+        }
+      }
+    ],
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}
