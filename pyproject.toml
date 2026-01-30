@@ -1,10 +1,25 @@
 [project]
 name = "sqlite-ast-conformance"
 version = "0.1.0"
-requires-python = ">=3.9"
-dependencies = [
-    "pytest",
-]
+description = "Conformance test suite for SQLite SQL parsers, using JSON AST fixtures from the official SQLite parser"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/simonw/sqlite-ast-conformance"
+
+[dependency-groups]
+dev = ["pytest"]
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["sqlite_ast_conformance*"]
+
+[tool.setuptools.package-data]
+sqlite_ast_conformance = ["ast-tests/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["."]
