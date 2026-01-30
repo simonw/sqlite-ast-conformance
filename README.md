@@ -2,7 +2,20 @@
 
 A language-independent conformance suite for implementations of a SQLite SELECT query parser.
 
-The `ast-tests/` directory contains JSON files, each defining a SQL query and its expected abstract syntax tree (AST). These test fixtures are generated using the **official SQLite parser** so they represent ground truth for how SQLite parses SELECT statements.
+The `sqlite_ast_conformance/ast-tests/` directory contains JSON files, each defining a SQL query and its expected abstract syntax tree (AST). These test fixtures are generated using the **official SQLite parser** so they represent ground truth for how SQLite parses SELECT statements.
+
+The package is available on PyPI, so you can install it and access the test fixtures programmatically:
+
+```bash
+pip install sqlite-ast-conformance
+```
+
+```python
+from sqlite_ast_conformance import AST_TESTS_DIR
+
+for test_file in sorted(AST_TESTS_DIR.glob("*.json")):
+    print(test_file.name)
+```
 
 ## How it works
 
@@ -14,7 +27,7 @@ The ASTs represent the **raw parse tree** produced by SQLite's Lemon parser, cap
 
 ## Test file format
 
-Each JSON file in `ast-tests/` has two keys:
+Each JSON file in `sqlite_ast_conformance/ast-tests/` has two keys:
 
 ```json
 {
@@ -49,7 +62,7 @@ Each JSON file in `ast-tests/` has two keys:
 ### Prerequisites
 
 - GCC (or compatible C compiler)
-- Python 3.9+ and [uv](https://docs.astral.sh/uv/)
+- Python 3.10+ and [uv](https://docs.astral.sh/uv/)
 - Git
 
 ### 1. Clone the SQLite source
@@ -81,7 +94,7 @@ This patches the SQLite amalgamation to insert an AST capture hook into the pars
 uv run pytest -v
 ```
 
-This runs `test_ast.py` which loads every JSON file from `ast-tests/`, calls `dump_ast` with the SQL, and compares the output to the expected AST.
+This runs `test_ast.py` which loads every JSON file from `sqlite_ast_conformance/ast-tests/`, calls `dump_ast` with the SQL, and compares the output to the expected AST.
 
 ### 5. Try individual queries
 
@@ -97,7 +110,7 @@ python generate_test.py <name> "<sql>"
 python generate_test.py my_test "SELECT a, b FROM t WHERE a > 1"
 ```
 
-This creates `ast-tests/my_test.json` using `dump_ast` to generate the expected AST.
+This creates `sqlite_ast_conformance/ast-tests/my_test.json` using `dump_ast` to generate the expected AST.
 
 ## AST node types
 
@@ -153,7 +166,7 @@ Compound selects (`UNION`, `INTERSECT`, `EXCEPT`) use `type: "compound"` with a 
 
 To test your own SQLite parser implementation:
 
-1. Read each JSON file from `ast-tests/`
+1. Read each JSON file from `sqlite_ast_conformance/ast-tests/`
 2. Parse the `sql` field with your parser
 3. Compare your AST output against the `ast` field
 4. The exact JSON structure must match — field names, nesting, and values
