@@ -15,7 +15,7 @@ import pytest
 
 # Path to the dump_ast binary
 DUMP_AST = Path(__file__).parent / "build" / "dump_ast"
-AST_TESTS_DIR = Path(__file__).parent / "ast-tests"
+AST_TESTS_DIR = Path(__file__).parent / "sqlite_ast_conformance" / "ast-tests"
 
 
 def load_test_cases():
