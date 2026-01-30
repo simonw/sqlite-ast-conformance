@@ -1,6 +1,6 @@
 [project]
 name = "sqlite-ast-conformance"
-version = "0.1.0"
+version = "0.1"
 description = "Conformance test suite for SQLite SQL parsers, using JSON AST fixtures from the official SQLite parser"
 requires-python = ">=3.10"
 dependencies = []
