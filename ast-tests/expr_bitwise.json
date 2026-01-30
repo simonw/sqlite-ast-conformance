@@ -1,0 +1,87 @@
+{
+  "sql": "SELECT 5 & 3, 5 | 3, ~5, 1 << 4, 16 >> 2",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "binary",
+          "op": "&",
+          "left": {
+            "type": "integer",
+            "value": 5
+          },
+          "right": {
+            "type": "integer",
+            "value": 3
+          }
+        },
+        "alias": null
+      },
+      {
+        "expr": {
+          "type": "binary",
+          "op": "|",
+          "left": {
+            "type": "integer",
+            "value": 5
+          },
+          "right": {
+            "type": "integer",
+            "value": 3
+          }
+        },
+        "alias": null
+      },
+      {
+        "expr": {
+          "type": "unary",
+          "op": "~",
+          "operand": {
+            "type": "integer",
+            "value": 5
+          }
+        },
+        "alias": null
+      },
+      {
+        "expr": {
+          "type": "binary",
+          "op": "<<",
+          "left": {
+            "type": "integer",
+            "value": 1
+          },
+          "right": {
+            "type": "integer",
+            "value": 4
+          }
+        },
+        "alias": null
+      },
+      {
+        "expr": {
+          "type": "binary",
+          "op": ">>",
+          "left": {
+            "type": "integer",
+            "value": 16
+          },
+          "right": {
+            "type": "integer",
+            "value": 2
+          }
+        },
+        "alias": null
+      }
+    ],
+    "from": null,
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}

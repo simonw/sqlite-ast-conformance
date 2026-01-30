@@ -1,0 +1,61 @@
+{
+  "sql": "SELECT 1 < 2, 3 >= 4, 5 != 6",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "binary",
+          "op": "<",
+          "left": {
+            "type": "integer",
+            "value": 1
+          },
+          "right": {
+            "type": "integer",
+            "value": 2
+          }
+        },
+        "alias": null
+      },
+      {
+        "expr": {
+          "type": "binary",
+          "op": ">=",
+          "left": {
+            "type": "integer",
+            "value": 3
+          },
+          "right": {
+            "type": "integer",
+            "value": 4
+          }
+        },
+        "alias": null
+      },
+      {
+        "expr": {
+          "type": "binary",
+          "op": "!=",
+          "left": {
+            "type": "integer",
+            "value": 5
+          },
+          "right": {
+            "type": "integer",
+            "value": 6
+          }
+        },
+        "alias": null
+      }
+    ],
+    "from": null,
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}

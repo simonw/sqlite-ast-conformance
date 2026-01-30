@@ -1,0 +1,59 @@
+{
+  "sql": "SELECT CASE x WHEN 1 THEN 'one' WHEN 2 THEN 'two' ELSE 'other' END FROM foo",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "case",
+          "operand": {
+            "type": "name",
+            "name": "x"
+          },
+          "when_clauses": [
+            {
+              "when": {
+                "type": "integer",
+                "value": 1
+              },
+              "then": {
+                "type": "string",
+                "value": "one"
+              }
+            },
+            {
+              "when": {
+                "type": "integer",
+                "value": 2
+              },
+              "then": {
+                "type": "string",
+                "value": "two"
+              }
+            }
+          ],
+          "else": {
+            "type": "string",
+            "value": "other"
+          }
+        },
+        "alias": null
+      }
+    ],
+    "from": [
+      {
+        "type": "table",
+        "name": "foo",
+        "alias": null,
+        "join_type": null
+      }
+    ],
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}

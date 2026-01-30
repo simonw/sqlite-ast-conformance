@@ -1,0 +1,39 @@
+{
+  "sql": "SELECT 'hello' || ' ' || 'world'",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "binary",
+          "op": "||",
+          "left": {
+            "type": "binary",
+            "op": "||",
+            "left": {
+              "type": "string",
+              "value": "hello"
+            },
+            "right": {
+              "type": "string",
+              "value": " "
+            }
+          },
+          "right": {
+            "type": "string",
+            "value": "world"
+          }
+        },
+        "alias": null
+      }
+    ],
+    "from": null,
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}

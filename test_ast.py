@@ -14,8 +14,8 @@ from pathlib import Path
 import pytest
 
 # Path to the dump_ast binary
-DUMP_AST = Path(__file__).parent.parent / "build" / "dump_ast"
-AST_TESTS_DIR = Path(__file__).parent.parent / "ast-tests"
+DUMP_AST = Path(__file__).parent / "build" / "dump_ast"
+AST_TESTS_DIR = Path(__file__).parent / "ast-tests"
 
 
 def load_test_cases():
