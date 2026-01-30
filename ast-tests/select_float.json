@@ -1,0 +1,23 @@
+{
+  "sql": "SELECT 3.14",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "float",
+          "value": "3.14"
+        },
+        "alias": null
+      }
+    ],
+    "from": null,
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "sql": "SELECT X'48656C6C6F'",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "blob",
+          "value": "X'48656C6C6F'"
+        },
+        "alias": null
+      }
+    ],
+    "from": null,
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}

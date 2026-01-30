@@ -1,0 +1,43 @@
+{
+  "sql": "SELECT 1, 'two', 3.0, NULL",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "integer",
+          "value": 1
+        },
+        "alias": null
+      },
+      {
+        "expr": {
+          "type": "string",
+          "value": "two"
+        },
+        "alias": null
+      },
+      {
+        "expr": {
+          "type": "float",
+          "value": "3.0"
+        },
+        "alias": null
+      },
+      {
+        "expr": {
+          "type": "null"
+        },
+        "alias": null
+      }
+    ],
+    "from": null,
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "sql": "SELECT TRUE, FALSE",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "name",
+          "name": "TRUE"
+        },
+        "alias": null
+      },
+      {
+        "expr": {
+          "type": "name",
+          "name": "FALSE"
+        },
+        "alias": null
+      }
+    ],
+    "from": null,
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}
