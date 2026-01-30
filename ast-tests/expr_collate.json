@@ -1,0 +1,42 @@
+{
+  "sql": "SELECT x FROM foo ORDER BY x COLLATE NOCASE",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "name",
+          "name": "x"
+        },
+        "alias": null
+      }
+    ],
+    "from": [
+      {
+        "type": "table",
+        "name": "foo",
+        "alias": null,
+        "join_type": null
+      }
+    ],
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": [
+      {
+        "expr": {
+          "type": "collate",
+          "expr": {
+            "type": "name",
+            "name": "x"
+          },
+          "collation": "NOCASE"
+        },
+        "direction": "ASC"
+      }
+    ],
+    "limit": null
+  }
+}

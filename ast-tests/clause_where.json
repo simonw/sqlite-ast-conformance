@@ -1,0 +1,40 @@
+{
+  "sql": "SELECT * FROM foo WHERE x > 5",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "star"
+        },
+        "alias": null
+      }
+    ],
+    "from": [
+      {
+        "type": "table",
+        "name": "foo",
+        "alias": null,
+        "join_type": null
+      }
+    ],
+    "where": {
+      "type": "binary",
+      "op": ">",
+      "left": {
+        "type": "name",
+        "name": "x"
+      },
+      "right": {
+        "type": "integer",
+        "value": 5
+      }
+    },
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}

@@ -1,0 +1,10 @@
+sqlite-src/
+build/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.o
+*.so
+*.dylib
+dump_ast
+.venv/

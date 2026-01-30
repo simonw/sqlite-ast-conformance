@@ -1,0 +1,27 @@
+{
+  "sql": "SELECT -1",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "unary",
+          "op": "-",
+          "operand": {
+            "type": "integer",
+            "value": 1
+          }
+        },
+        "alias": null
+      }
+    ],
+    "from": null,
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}

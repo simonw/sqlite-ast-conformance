@@ -1,0 +1,73 @@
+{
+  "sql": "SELECT * FROM (SELECT * FROM (SELECT 1 AS x) AS inner1) AS outer1",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "star"
+        },
+        "alias": null
+      }
+    ],
+    "from": [
+      {
+        "type": "subquery",
+        "select": {
+          "type": "select",
+          "distinct": false,
+          "all": false,
+          "columns": [
+            {
+              "expr": {
+                "type": "star"
+              },
+              "alias": null
+            }
+          ],
+          "from": [
+            {
+              "type": "subquery",
+              "select": {
+                "type": "select",
+                "distinct": false,
+                "all": false,
+                "columns": [
+                  {
+                    "expr": {
+                      "type": "integer",
+                      "value": 1
+                    },
+                    "alias": "x"
+                  }
+                ],
+                "from": null,
+                "where": null,
+                "group_by": null,
+                "having": null,
+                "order_by": null,
+                "limit": null
+              },
+              "alias": "inner1",
+              "join_type": null
+            }
+          ],
+          "where": null,
+          "group_by": null,
+          "having": null,
+          "order_by": null,
+          "limit": null
+        },
+        "alias": "outer1",
+        "join_type": null
+      }
+    ],
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}

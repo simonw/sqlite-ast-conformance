@@ -1,0 +1,46 @@
+{
+  "sql": "SELECT * FROM foo ORDER BY x NULLS FIRST, y NULLS LAST",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "star"
+        },
+        "alias": null
+      }
+    ],
+    "from": [
+      {
+        "type": "table",
+        "name": "foo",
+        "alias": null,
+        "join_type": null
+      }
+    ],
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": [
+      {
+        "expr": {
+          "type": "name",
+          "name": "x"
+        },
+        "direction": "ASC",
+        "nulls": "FIRST"
+      },
+      {
+        "expr": {
+          "type": "name",
+          "name": "y"
+        },
+        "direction": "ASC",
+        "nulls": "LAST"
+      }
+    ],
+    "limit": null
+  }
+}

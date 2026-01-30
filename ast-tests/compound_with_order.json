@@ -1,0 +1,77 @@
+{
+  "sql": "SELECT x FROM foo UNION SELECT y FROM bar ORDER BY 1 LIMIT 5",
+  "ast": {
+    "type": "compound",
+    "body": [
+      {
+        "select": {
+          "type": "select",
+          "distinct": false,
+          "all": false,
+          "columns": [
+            {
+              "expr": {
+                "type": "name",
+                "name": "x"
+              },
+              "alias": null
+            }
+          ],
+          "from": [
+            {
+              "type": "table",
+              "name": "foo",
+              "alias": null,
+              "join_type": null
+            }
+          ],
+          "where": null,
+          "group_by": null,
+          "having": null
+        }
+      },
+      {
+        "operator": "UNION",
+        "select": {
+          "type": "select",
+          "distinct": false,
+          "all": false,
+          "columns": [
+            {
+              "expr": {
+                "type": "name",
+                "name": "y"
+              },
+              "alias": null
+            }
+          ],
+          "from": [
+            {
+              "type": "table",
+              "name": "bar",
+              "alias": null,
+              "join_type": null
+            }
+          ],
+          "where": null,
+          "group_by": null,
+          "having": null
+        }
+      }
+    ],
+    "order_by": [
+      {
+        "expr": {
+          "type": "integer",
+          "value": 1
+        },
+        "direction": "ASC"
+      }
+    ],
+    "limit": {
+      "type": "integer",
+      "value": 5
+    },
+    "offset": null
+  }
+}

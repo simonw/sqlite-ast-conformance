@@ -1,0 +1,112 @@
+{
+  "sql": "WITH RECURSIVE cnt(x) AS (SELECT 1 UNION ALL SELECT x+1 FROM cnt WHERE x < 10) SELECT x FROM cnt",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "with": [
+      {
+        "name": "cnt",
+        "columns": [
+          "x"
+        ],
+        "select": {
+          "type": "compound",
+          "body": [
+            {
+              "select": {
+                "type": "select",
+                "distinct": false,
+                "all": false,
+                "columns": [
+                  {
+                    "expr": {
+                      "type": "integer",
+                      "value": 1
+                    },
+                    "alias": null
+                  }
+                ],
+                "from": null,
+                "where": null,
+                "group_by": null,
+                "having": null
+              }
+            },
+            {
+              "operator": "UNION ALL",
+              "select": {
+                "type": "select",
+                "distinct": false,
+                "all": false,
+                "columns": [
+                  {
+                    "expr": {
+                      "type": "binary",
+                      "op": "+",
+                      "left": {
+                        "type": "name",
+                        "name": "x"
+                      },
+                      "right": {
+                        "type": "integer",
+                        "value": 1
+                      }
+                    },
+                    "alias": null
+                  }
+                ],
+                "from": [
+                  {
+                    "type": "table",
+                    "name": "cnt",
+                    "alias": null,
+                    "join_type": null
+                  }
+                ],
+                "where": {
+                  "type": "binary",
+                  "op": "<",
+                  "left": {
+                    "type": "name",
+                    "name": "x"
+                  },
+                  "right": {
+                    "type": "integer",
+                    "value": 10
+                  }
+                },
+                "group_by": null,
+                "having": null
+              }
+            }
+          ],
+          "order_by": null,
+          "limit": null
+        }
+      }
+    ],
+    "columns": [
+      {
+        "expr": {
+          "type": "name",
+          "name": "x"
+        },
+        "alias": null
+      }
+    ],
+    "from": [
+      {
+        "type": "table",
+        "name": "cnt",
+        "alias": null,
+        "join_type": null
+      }
+    ],
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}

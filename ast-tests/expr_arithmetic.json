@@ -1,0 +1,39 @@
+{
+  "sql": "SELECT 1 + 2 * 3",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "binary",
+          "op": "+",
+          "left": {
+            "type": "integer",
+            "value": 1
+          },
+          "right": {
+            "type": "binary",
+            "op": "*",
+            "left": {
+              "type": "integer",
+              "value": 2
+            },
+            "right": {
+              "type": "integer",
+              "value": 3
+            }
+          }
+        },
+        "alias": null
+      }
+    ],
+    "from": null,
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}

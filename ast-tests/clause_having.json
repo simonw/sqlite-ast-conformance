@@ -1,0 +1,57 @@
+{
+  "sql": "SELECT x, count(*) AS c FROM foo GROUP BY x HAVING count(*) > 1",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "name",
+          "name": "x"
+        },
+        "alias": null
+      },
+      {
+        "expr": {
+          "type": "function",
+          "name": "count",
+          "args": [],
+          "distinct": false
+        },
+        "alias": "c"
+      }
+    ],
+    "from": [
+      {
+        "type": "table",
+        "name": "foo",
+        "alias": null,
+        "join_type": null
+      }
+    ],
+    "where": null,
+    "group_by": [
+      {
+        "type": "name",
+        "name": "x"
+      }
+    ],
+    "having": {
+      "type": "binary",
+      "op": ">",
+      "left": {
+        "type": "function",
+        "name": "count",
+        "args": [],
+        "distinct": false
+      },
+      "right": {
+        "type": "integer",
+        "value": 1
+      }
+    },
+    "order_by": null,
+    "limit": null
+  }
+}

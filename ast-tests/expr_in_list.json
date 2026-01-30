@@ -1,0 +1,50 @@
+{
+  "sql": "SELECT x FROM foo WHERE x IN (1, 2, 3)",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "name",
+          "name": "x"
+        },
+        "alias": null
+      }
+    ],
+    "from": [
+      {
+        "type": "table",
+        "name": "foo",
+        "alias": null,
+        "join_type": null
+      }
+    ],
+    "where": {
+      "type": "in",
+      "expr": {
+        "type": "name",
+        "name": "x"
+      },
+      "values": [
+        {
+          "type": "integer",
+          "value": 1
+        },
+        {
+          "type": "integer",
+          "value": 2
+        },
+        {
+          "type": "integer",
+          "value": 3
+        }
+      ]
+    },
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}

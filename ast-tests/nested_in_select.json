@@ -1,0 +1,83 @@
+{
+  "sql": "SELECT (SELECT count(*) FROM bar WHERE bar.foo_id = foo.id) AS cnt FROM foo",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "subquery",
+          "select": {
+            "type": "select",
+            "distinct": false,
+            "all": false,
+            "columns": [
+              {
+                "expr": {
+                  "type": "function",
+                  "name": "count",
+                  "args": [],
+                  "distinct": false
+                },
+                "alias": null
+              }
+            ],
+            "from": [
+              {
+                "type": "table",
+                "name": "bar",
+                "alias": null,
+                "join_type": null
+              }
+            ],
+            "where": {
+              "type": "binary",
+              "op": "=",
+              "left": {
+                "type": "dot",
+                "left": {
+                  "type": "name",
+                  "name": "bar"
+                },
+                "right": {
+                  "type": "name",
+                  "name": "foo_id"
+                }
+              },
+              "right": {
+                "type": "dot",
+                "left": {
+                  "type": "name",
+                  "name": "foo"
+                },
+                "right": {
+                  "type": "name",
+                  "name": "id"
+                }
+              }
+            },
+            "group_by": null,
+            "having": null,
+            "order_by": null,
+            "limit": null
+          }
+        },
+        "alias": "cnt"
+      }
+    ],
+    "from": [
+      {
+        "type": "table",
+        "name": "foo",
+        "alias": null,
+        "join_type": null
+      }
+    ],
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}

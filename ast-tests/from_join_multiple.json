@@ -1,0 +1,93 @@
+{
+  "sql": "SELECT * FROM a JOIN b ON a.id = b.a_id JOIN c ON b.id = c.b_id",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "star"
+        },
+        "alias": null
+      }
+    ],
+    "from": [
+      {
+        "type": "table",
+        "name": "a",
+        "alias": null,
+        "join_type": null
+      },
+      {
+        "type": "table",
+        "name": "b",
+        "alias": null,
+        "join_type": "JOIN",
+        "on": {
+          "type": "binary",
+          "op": "=",
+          "left": {
+            "type": "dot",
+            "left": {
+              "type": "name",
+              "name": "a"
+            },
+            "right": {
+              "type": "name",
+              "name": "id"
+            }
+          },
+          "right": {
+            "type": "dot",
+            "left": {
+              "type": "name",
+              "name": "b"
+            },
+            "right": {
+              "type": "name",
+              "name": "a_id"
+            }
+          }
+        }
+      },
+      {
+        "type": "table",
+        "name": "c",
+        "alias": null,
+        "join_type": "JOIN",
+        "on": {
+          "type": "binary",
+          "op": "=",
+          "left": {
+            "type": "dot",
+            "left": {
+              "type": "name",
+              "name": "b"
+            },
+            "right": {
+              "type": "name",
+              "name": "id"
+            }
+          },
+          "right": {
+            "type": "dot",
+            "left": {
+              "type": "name",
+              "name": "c"
+            },
+            "right": {
+              "type": "name",
+              "name": "b_id"
+            }
+          }
+        }
+      }
+    ],
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}

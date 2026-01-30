@@ -1,0 +1,78 @@
+{
+  "sql": "SELECT x, sum(y) OVER w FROM foo WINDOW w AS (PARTITION BY x ORDER BY y)",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "name",
+          "name": "x"
+        },
+        "alias": null
+      },
+      {
+        "expr": {
+          "type": "function",
+          "name": "sum",
+          "args": [
+            {
+              "type": "name",
+              "name": "y"
+            }
+          ],
+          "distinct": false,
+          "over": {
+            "name": "w",
+            "base": null
+          }
+        },
+        "alias": null
+      }
+    ],
+    "from": [
+      {
+        "type": "table",
+        "name": "foo",
+        "alias": null,
+        "join_type": null
+      }
+    ],
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "window_definitions": [
+      {
+        "name": "w",
+        "base": null,
+        "partition_by": [
+          {
+            "type": "name",
+            "name": "x"
+          }
+        ],
+        "order_by": [
+          {
+            "expr": {
+              "type": "name",
+              "name": "y"
+            },
+            "direction": "ASC"
+          }
+        ],
+        "frame": {
+          "type": "RANGE",
+          "start": {
+            "type": "UNBOUNDED"
+          },
+          "end": {
+            "type": "CURRENT ROW"
+          }
+        }
+      }
+    ],
+    "order_by": null,
+    "limit": null
+  }
+}

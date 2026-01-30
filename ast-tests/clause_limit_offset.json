@@ -1,0 +1,36 @@
+{
+  "sql": "SELECT * FROM foo LIMIT 10 OFFSET 5",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "star"
+        },
+        "alias": null
+      }
+    ],
+    "from": [
+      {
+        "type": "table",
+        "name": "foo",
+        "alias": null,
+        "join_type": null
+      }
+    ],
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": {
+      "type": "integer",
+      "value": 10
+    },
+    "offset": {
+      "type": "integer",
+      "value": 5
+    }
+  }
+}

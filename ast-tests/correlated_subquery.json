@@ -1,0 +1,98 @@
+{
+  "sql": "SELECT * FROM foo AS f WHERE x > (SELECT avg(x) FROM bar WHERE bar.id = f.id)",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "star"
+        },
+        "alias": null
+      }
+    ],
+    "from": [
+      {
+        "type": "table",
+        "name": "foo",
+        "alias": "f",
+        "join_type": null
+      }
+    ],
+    "where": {
+      "type": "binary",
+      "op": ">",
+      "left": {
+        "type": "name",
+        "name": "x"
+      },
+      "right": {
+        "type": "subquery",
+        "select": {
+          "type": "select",
+          "distinct": false,
+          "all": false,
+          "columns": [
+            {
+              "expr": {
+                "type": "function",
+                "name": "avg",
+                "args": [
+                  {
+                    "type": "name",
+                    "name": "x"
+                  }
+                ],
+                "distinct": false
+              },
+              "alias": null
+            }
+          ],
+          "from": [
+            {
+              "type": "table",
+              "name": "bar",
+              "alias": null,
+              "join_type": null
+            }
+          ],
+          "where": {
+            "type": "binary",
+            "op": "=",
+            "left": {
+              "type": "dot",
+              "left": {
+                "type": "name",
+                "name": "bar"
+              },
+              "right": {
+                "type": "name",
+                "name": "id"
+              }
+            },
+            "right": {
+              "type": "dot",
+              "left": {
+                "type": "name",
+                "name": "f"
+              },
+              "right": {
+                "type": "name",
+                "name": "id"
+              }
+            }
+          },
+          "group_by": null,
+          "having": null,
+          "order_by": null,
+          "limit": null
+        }
+      }
+    },
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}

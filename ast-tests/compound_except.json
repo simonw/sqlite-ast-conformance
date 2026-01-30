@@ -1,0 +1,51 @@
+{
+  "sql": "SELECT 1 EXCEPT SELECT 2",
+  "ast": {
+    "type": "compound",
+    "body": [
+      {
+        "select": {
+          "type": "select",
+          "distinct": false,
+          "all": false,
+          "columns": [
+            {
+              "expr": {
+                "type": "integer",
+                "value": 1
+              },
+              "alias": null
+            }
+          ],
+          "from": null,
+          "where": null,
+          "group_by": null,
+          "having": null
+        }
+      },
+      {
+        "operator": "EXCEPT",
+        "select": {
+          "type": "select",
+          "distinct": false,
+          "all": false,
+          "columns": [
+            {
+              "expr": {
+                "type": "integer",
+                "value": 2
+              },
+              "alias": null
+            }
+          ],
+          "from": null,
+          "where": null,
+          "group_by": null,
+          "having": null
+        }
+      }
+    ],
+    "order_by": null,
+    "limit": null
+  }
+}

@@ -1,0 +1,1059 @@
+{
+  "sql": "WITH RECURSIVE\n  base(id, name, val) AS (\n    SELECT 1, 'root', 100.0\n    UNION ALL\n    SELECT b.id + 1, 'node' || CAST(b.id + 1 AS TEXT), b.val * 0.9\n    FROM base AS b\n    WHERE b.id < 5\n  ),\n  agg AS MATERIALIZED (\n    SELECT\n      id,\n      name,\n      val,\n      CASE\n        WHEN val > 90 THEN 'high'\n        WHEN val BETWEEN 50 AND 90 THEN 'medium'\n        ELSE 'low'\n      END AS category\n    FROM base\n    WHERE name IS NOT NULL\n      AND id NOT IN (SELECT 3)\n      AND val > 0\n  )\nSELECT\n  a.id,\n  a.name || ' (' || a.category || ')' AS display,\n  a.val,\n  CAST(a.val AS INTEGER) AS int_val,\n  count(*) OVER () AS total_rows,\n  sum(a.val) OVER (ORDER BY a.id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_total,\n  row_number() OVER (PARTITION BY a.category ORDER BY a.val DESC) AS rank_in_category,\n  (SELECT max(val) FROM agg WHERE category = a.category) AS category_max,\n  coalesce(a.name, 'unknown') AS safe_name,\n  EXISTS (SELECT 1 FROM base WHERE id = a.id AND val > 50) AS has_high_val,\n  a.val > 80.0 IS NOT FALSE AS probably_high,\n  -a.val AS neg_val,\n  a.id << 2 | 1 AS bit_expr,\n  X'DEADBEEF' AS hex_const,\n  ?1 AS param\nFROM agg AS a\nLEFT JOIN base AS b ON a.id = b.id AND b.val > 0\nCROSS JOIN (SELECT 'x' AS dummy) AS d\nWHERE a.id >= 1\n  AND a.name LIKE '%node%' ESCAPE '\\'\n  AND a.val NOT BETWEEN -100 AND 0\nGROUP BY a.id, a.name, a.val, a.category\nHAVING count(*) > 0\nORDER BY a.category ASC NULLS LAST, a.val DESC NULLS FIRST\nLIMIT 10\nOFFSET 0",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "with": [
+      {
+        "name": "base",
+        "columns": [
+          "id",
+          "name",
+          "val"
+        ],
+        "select": {
+          "type": "compound",
+          "body": [
+            {
+              "select": {
+                "type": "select",
+                "distinct": false,
+                "all": false,
+                "columns": [
+                  {
+                    "expr": {
+                      "type": "integer",
+                      "value": 1
+                    },
+                    "alias": null
+                  },
+                  {
+                    "expr": {
+                      "type": "string",
+                      "value": "root"
+                    },
+                    "alias": null
+                  },
+                  {
+                    "expr": {
+                      "type": "float",
+                      "value": "100.0"
+                    },
+                    "alias": null
+                  }
+                ],
+                "from": null,
+                "where": null,
+                "group_by": null,
+                "having": null
+              }
+            },
+            {
+              "operator": "UNION ALL",
+              "select": {
+                "type": "select",
+                "distinct": false,
+                "all": false,
+                "columns": [
+                  {
+                    "expr": {
+                      "type": "binary",
+                      "op": "+",
+                      "left": {
+                        "type": "dot",
+                        "left": {
+                          "type": "name",
+                          "name": "b"
+                        },
+                        "right": {
+                          "type": "name",
+                          "name": "id"
+                        }
+                      },
+                      "right": {
+                        "type": "integer",
+                        "value": 1
+                      }
+                    },
+                    "alias": null
+                  },
+                  {
+                    "expr": {
+                      "type": "binary",
+                      "op": "||",
+                      "left": {
+                        "type": "string",
+                        "value": "node"
+                      },
+                      "right": {
+                        "type": "cast",
+                        "expr": {
+                          "type": "binary",
+                          "op": "+",
+                          "left": {
+                            "type": "dot",
+                            "left": {
+                              "type": "name",
+                              "name": "b"
+                            },
+                            "right": {
+                              "type": "name",
+                              "name": "id"
+                            }
+                          },
+                          "right": {
+                            "type": "integer",
+                            "value": 1
+                          }
+                        },
+                        "as": "TEXT"
+                      }
+                    },
+                    "alias": null
+                  },
+                  {
+                    "expr": {
+                      "type": "binary",
+                      "op": "*",
+                      "left": {
+                        "type": "dot",
+                        "left": {
+                          "type": "name",
+                          "name": "b"
+                        },
+                        "right": {
+                          "type": "name",
+                          "name": "val"
+                        }
+                      },
+                      "right": {
+                        "type": "float",
+                        "value": "0.9"
+                      }
+                    },
+                    "alias": null
+                  }
+                ],
+                "from": [
+                  {
+                    "type": "table",
+                    "name": "base",
+                    "alias": "b",
+                    "join_type": null
+                  }
+                ],
+                "where": {
+                  "type": "binary",
+                  "op": "<",
+                  "left": {
+                    "type": "dot",
+                    "left": {
+                      "type": "name",
+                      "name": "b"
+                    },
+                    "right": {
+                      "type": "name",
+                      "name": "id"
+                    }
+                  },
+                  "right": {
+                    "type": "integer",
+                    "value": 5
+                  }
+                },
+                "group_by": null,
+                "having": null
+              }
+            }
+          ],
+          "order_by": null,
+          "limit": null
+        }
+      },
+      {
+        "name": "agg",
+        "materialized": "MATERIALIZED",
+        "select": {
+          "type": "select",
+          "distinct": false,
+          "all": false,
+          "columns": [
+            {
+              "expr": {
+                "type": "name",
+                "name": "id"
+              },
+              "alias": null
+            },
+            {
+              "expr": {
+                "type": "name",
+                "name": "name"
+              },
+              "alias": null
+            },
+            {
+              "expr": {
+                "type": "name",
+                "name": "val"
+              },
+              "alias": null
+            },
+            {
+              "expr": {
+                "type": "case",
+                "operand": null,
+                "when_clauses": [
+                  {
+                    "when": {
+                      "type": "binary",
+                      "op": ">",
+                      "left": {
+                        "type": "name",
+                        "name": "val"
+                      },
+                      "right": {
+                        "type": "integer",
+                        "value": 90
+                      }
+                    },
+                    "then": {
+                      "type": "string",
+                      "value": "high"
+                    }
+                  },
+                  {
+                    "when": {
+                      "type": "between",
+                      "expr": {
+                        "type": "name",
+                        "name": "val"
+                      },
+                      "low": {
+                        "type": "integer",
+                        "value": 50
+                      },
+                      "high": {
+                        "type": "integer",
+                        "value": 90
+                      }
+                    },
+                    "then": {
+                      "type": "string",
+                      "value": "medium"
+                    }
+                  }
+                ],
+                "else": {
+                  "type": "string",
+                  "value": "low"
+                }
+              },
+              "alias": "category"
+            }
+          ],
+          "from": [
+            {
+              "type": "table",
+              "name": "base",
+              "alias": null,
+              "join_type": null
+            }
+          ],
+          "where": {
+            "type": "binary",
+            "op": "AND",
+            "left": {
+              "type": "binary",
+              "op": "AND",
+              "left": {
+                "type": "notnull",
+                "operand": {
+                  "type": "name",
+                  "name": "name"
+                }
+              },
+              "right": {
+                "type": "unary",
+                "op": "NOT",
+                "operand": {
+                  "type": "in",
+                  "expr": {
+                    "type": "name",
+                    "name": "id"
+                  },
+                  "select": {
+                    "type": "select",
+                    "distinct": false,
+                    "all": false,
+                    "columns": [
+                      {
+                        "expr": {
+                          "type": "integer",
+                          "value": 3
+                        },
+                        "alias": null
+                      }
+                    ],
+                    "from": null,
+                    "where": null,
+                    "group_by": null,
+                    "having": null,
+                    "order_by": null,
+                    "limit": null
+                  }
+                }
+              }
+            },
+            "right": {
+              "type": "binary",
+              "op": ">",
+              "left": {
+                "type": "name",
+                "name": "val"
+              },
+              "right": {
+                "type": "integer",
+                "value": 0
+              }
+            }
+          },
+          "group_by": null,
+          "having": null,
+          "order_by": null,
+          "limit": null
+        }
+      }
+    ],
+    "columns": [
+      {
+        "expr": {
+          "type": "dot",
+          "left": {
+            "type": "name",
+            "name": "a"
+          },
+          "right": {
+            "type": "name",
+            "name": "id"
+          }
+        },
+        "alias": null
+      },
+      {
+        "expr": {
+          "type": "binary",
+          "op": "||",
+          "left": {
+            "type": "binary",
+            "op": "||",
+            "left": {
+              "type": "binary",
+              "op": "||",
+              "left": {
+                "type": "dot",
+                "left": {
+                  "type": "name",
+                  "name": "a"
+                },
+                "right": {
+                  "type": "name",
+                  "name": "name"
+                }
+              },
+              "right": {
+                "type": "string",
+                "value": " ("
+              }
+            },
+            "right": {
+              "type": "dot",
+              "left": {
+                "type": "name",
+                "name": "a"
+              },
+              "right": {
+                "type": "name",
+                "name": "category"
+              }
+            }
+          },
+          "right": {
+            "type": "string",
+            "value": ")"
+          }
+        },
+        "alias": "display"
+      },
+      {
+        "expr": {
+          "type": "dot",
+          "left": {
+            "type": "name",
+            "name": "a"
+          },
+          "right": {
+            "type": "name",
+            "name": "val"
+          }
+        },
+        "alias": null
+      },
+      {
+        "expr": {
+          "type": "cast",
+          "expr": {
+            "type": "dot",
+            "left": {
+              "type": "name",
+              "name": "a"
+            },
+            "right": {
+              "type": "name",
+              "name": "val"
+            }
+          },
+          "as": "INTEGER"
+        },
+        "alias": "int_val"
+      },
+      {
+        "expr": {
+          "type": "function",
+          "name": "count",
+          "args": [],
+          "distinct": false,
+          "over": {
+            "name": null,
+            "base": null,
+            "frame": {
+              "type": "RANGE",
+              "start": {
+                "type": "UNBOUNDED"
+              },
+              "end": {
+                "type": "CURRENT ROW"
+              }
+            }
+          }
+        },
+        "alias": "total_rows"
+      },
+      {
+        "expr": {
+          "type": "function",
+          "name": "sum",
+          "args": [
+            {
+              "type": "dot",
+              "left": {
+                "type": "name",
+                "name": "a"
+              },
+              "right": {
+                "type": "name",
+                "name": "val"
+              }
+            }
+          ],
+          "distinct": false,
+          "over": {
+            "name": null,
+            "base": null,
+            "order_by": [
+              {
+                "expr": {
+                  "type": "dot",
+                  "left": {
+                    "type": "name",
+                    "name": "a"
+                  },
+                  "right": {
+                    "type": "name",
+                    "name": "id"
+                  }
+                },
+                "direction": "ASC"
+              }
+            ],
+            "frame": {
+              "type": "ROWS",
+              "start": {
+                "type": "UNBOUNDED"
+              },
+              "end": {
+                "type": "CURRENT ROW"
+              }
+            }
+          }
+        },
+        "alias": "running_total"
+      },
+      {
+        "expr": {
+          "type": "function",
+          "name": "row_number",
+          "args": [],
+          "distinct": false,
+          "over": {
+            "name": null,
+            "base": null,
+            "partition_by": [
+              {
+                "type": "dot",
+                "left": {
+                  "type": "name",
+                  "name": "a"
+                },
+                "right": {
+                  "type": "name",
+                  "name": "category"
+                }
+              }
+            ],
+            "order_by": [
+              {
+                "expr": {
+                  "type": "dot",
+                  "left": {
+                    "type": "name",
+                    "name": "a"
+                  },
+                  "right": {
+                    "type": "name",
+                    "name": "val"
+                  }
+                },
+                "direction": "DESC"
+              }
+            ],
+            "frame": {
+              "type": "RANGE",
+              "start": {
+                "type": "UNBOUNDED"
+              },
+              "end": {
+                "type": "CURRENT ROW"
+              }
+            }
+          }
+        },
+        "alias": "rank_in_category"
+      },
+      {
+        "expr": {
+          "type": "subquery",
+          "select": {
+            "type": "select",
+            "distinct": false,
+            "all": false,
+            "columns": [
+              {
+                "expr": {
+                  "type": "function",
+                  "name": "max",
+                  "args": [
+                    {
+                      "type": "name",
+                      "name": "val"
+                    }
+                  ],
+                  "distinct": false
+                },
+                "alias": null
+              }
+            ],
+            "from": [
+              {
+                "type": "table",
+                "name": "agg",
+                "alias": null,
+                "join_type": null
+              }
+            ],
+            "where": {
+              "type": "binary",
+              "op": "=",
+              "left": {
+                "type": "name",
+                "name": "category"
+              },
+              "right": {
+                "type": "dot",
+                "left": {
+                  "type": "name",
+                  "name": "a"
+                },
+                "right": {
+                  "type": "name",
+                  "name": "category"
+                }
+              }
+            },
+            "group_by": null,
+            "having": null,
+            "order_by": null,
+            "limit": null
+          }
+        },
+        "alias": "category_max"
+      },
+      {
+        "expr": {
+          "type": "function",
+          "name": "coalesce",
+          "args": [
+            {
+              "type": "dot",
+              "left": {
+                "type": "name",
+                "name": "a"
+              },
+              "right": {
+                "type": "name",
+                "name": "name"
+              }
+            },
+            {
+              "type": "string",
+              "value": "unknown"
+            }
+          ],
+          "distinct": false
+        },
+        "alias": "safe_name"
+      },
+      {
+        "expr": {
+          "type": "exists",
+          "select": {
+            "type": "select",
+            "distinct": false,
+            "all": false,
+            "columns": [
+              {
+                "expr": {
+                  "type": "integer",
+                  "value": 1
+                },
+                "alias": null
+              }
+            ],
+            "from": [
+              {
+                "type": "table",
+                "name": "base",
+                "alias": null,
+                "join_type": null
+              }
+            ],
+            "where": {
+              "type": "binary",
+              "op": "AND",
+              "left": {
+                "type": "binary",
+                "op": "=",
+                "left": {
+                  "type": "name",
+                  "name": "id"
+                },
+                "right": {
+                  "type": "dot",
+                  "left": {
+                    "type": "name",
+                    "name": "a"
+                  },
+                  "right": {
+                    "type": "name",
+                    "name": "id"
+                  }
+                }
+              },
+              "right": {
+                "type": "binary",
+                "op": ">",
+                "left": {
+                  "type": "name",
+                  "name": "val"
+                },
+                "right": {
+                  "type": "integer",
+                  "value": 50
+                }
+              }
+            },
+            "group_by": null,
+            "having": null,
+            "order_by": null,
+            "limit": null
+          }
+        },
+        "alias": "has_high_val"
+      },
+      {
+        "expr": {
+          "type": "binary",
+          "op": "IS NOT",
+          "left": {
+            "type": "binary",
+            "op": ">",
+            "left": {
+              "type": "dot",
+              "left": {
+                "type": "name",
+                "name": "a"
+              },
+              "right": {
+                "type": "name",
+                "name": "val"
+              }
+            },
+            "right": {
+              "type": "float",
+              "value": "80.0"
+            }
+          },
+          "right": {
+            "type": "name",
+            "name": "FALSE"
+          }
+        },
+        "alias": "probably_high"
+      },
+      {
+        "expr": {
+          "type": "unary",
+          "op": "-",
+          "operand": {
+            "type": "dot",
+            "left": {
+              "type": "name",
+              "name": "a"
+            },
+            "right": {
+              "type": "name",
+              "name": "val"
+            }
+          }
+        },
+        "alias": "neg_val"
+      },
+      {
+        "expr": {
+          "type": "binary",
+          "op": "|",
+          "left": {
+            "type": "binary",
+            "op": "<<",
+            "left": {
+              "type": "dot",
+              "left": {
+                "type": "name",
+                "name": "a"
+              },
+              "right": {
+                "type": "name",
+                "name": "id"
+              }
+            },
+            "right": {
+              "type": "integer",
+              "value": 2
+            }
+          },
+          "right": {
+            "type": "integer",
+            "value": 1
+          }
+        },
+        "alias": "bit_expr"
+      },
+      {
+        "expr": {
+          "type": "blob",
+          "value": "X'DEADBEEF'"
+        },
+        "alias": "hex_const"
+      },
+      {
+        "expr": {
+          "type": "parameter",
+          "name": "?1"
+        },
+        "alias": "param"
+      }
+    ],
+    "from": [
+      {
+        "type": "table",
+        "name": "agg",
+        "alias": "a",
+        "join_type": null
+      },
+      {
+        "type": "table",
+        "name": "base",
+        "alias": "b",
+        "join_type": "LEFT JOIN",
+        "on": {
+          "type": "binary",
+          "op": "AND",
+          "left": {
+            "type": "binary",
+            "op": "=",
+            "left": {
+              "type": "dot",
+              "left": {
+                "type": "name",
+                "name": "a"
+              },
+              "right": {
+                "type": "name",
+                "name": "id"
+              }
+            },
+            "right": {
+              "type": "dot",
+              "left": {
+                "type": "name",
+                "name": "b"
+              },
+              "right": {
+                "type": "name",
+                "name": "id"
+              }
+            }
+          },
+          "right": {
+            "type": "binary",
+            "op": ">",
+            "left": {
+              "type": "dot",
+              "left": {
+                "type": "name",
+                "name": "b"
+              },
+              "right": {
+                "type": "name",
+                "name": "val"
+              }
+            },
+            "right": {
+              "type": "integer",
+              "value": 0
+            }
+          }
+        }
+      },
+      {
+        "type": "subquery",
+        "select": {
+          "type": "select",
+          "distinct": false,
+          "all": false,
+          "columns": [
+            {
+              "expr": {
+                "type": "string",
+                "value": "x"
+              },
+              "alias": "dummy"
+            }
+          ],
+          "from": null,
+          "where": null,
+          "group_by": null,
+          "having": null,
+          "order_by": null,
+          "limit": null
+        },
+        "alias": "d",
+        "join_type": "CROSS JOIN"
+      }
+    ],
+    "where": {
+      "type": "binary",
+      "op": "AND",
+      "left": {
+        "type": "binary",
+        "op": "AND",
+        "left": {
+          "type": "binary",
+          "op": ">=",
+          "left": {
+            "type": "dot",
+            "left": {
+              "type": "name",
+              "name": "a"
+            },
+            "right": {
+              "type": "name",
+              "name": "id"
+            }
+          },
+          "right": {
+            "type": "integer",
+            "value": 1
+          }
+        },
+        "right": {
+          "type": "function",
+          "name": "LIKE",
+          "args": [
+            {
+              "type": "string",
+              "value": "%node%"
+            },
+            {
+              "type": "dot",
+              "left": {
+                "type": "name",
+                "name": "a"
+              },
+              "right": {
+                "type": "name",
+                "name": "name"
+              }
+            },
+            {
+              "type": "string",
+              "value": "\\"
+            }
+          ],
+          "distinct": false
+        }
+      },
+      "right": {
+        "type": "unary",
+        "op": "NOT",
+        "operand": {
+          "type": "between",
+          "expr": {
+            "type": "dot",
+            "left": {
+              "type": "name",
+              "name": "a"
+            },
+            "right": {
+              "type": "name",
+              "name": "val"
+            }
+          },
+          "low": {
+            "type": "unary",
+            "op": "-",
+            "operand": {
+              "type": "integer",
+              "value": 100
+            }
+          },
+          "high": {
+            "type": "integer",
+            "value": 0
+          }
+        }
+      }
+    },
+    "group_by": [
+      {
+        "type": "dot",
+        "left": {
+          "type": "name",
+          "name": "a"
+        },
+        "right": {
+          "type": "name",
+          "name": "id"
+        }
+      },
+      {
+        "type": "dot",
+        "left": {
+          "type": "name",
+          "name": "a"
+        },
+        "right": {
+          "type": "name",
+          "name": "name"
+        }
+      },
+      {
+        "type": "dot",
+        "left": {
+          "type": "name",
+          "name": "a"
+        },
+        "right": {
+          "type": "name",
+          "name": "val"
+        }
+      },
+      {
+        "type": "dot",
+        "left": {
+          "type": "name",
+          "name": "a"
+        },
+        "right": {
+          "type": "name",
+          "name": "category"
+        }
+      }
+    ],
+    "having": {
+      "type": "binary",
+      "op": ">",
+      "left": {
+        "type": "function",
+        "name": "count",
+        "args": [],
+        "distinct": false
+      },
+      "right": {
+        "type": "integer",
+        "value": 0
+      }
+    },
+    "order_by": [
+      {
+        "expr": {
+          "type": "dot",
+          "left": {
+            "type": "name",
+            "name": "a"
+          },
+          "right": {
+            "type": "name",
+            "name": "category"
+          }
+        },
+        "direction": "ASC",
+        "nulls": "LAST"
+      },
+      {
+        "expr": {
+          "type": "dot",
+          "left": {
+            "type": "name",
+            "name": "a"
+          },
+          "right": {
+            "type": "name",
+            "name": "val"
+          }
+        },
+        "direction": "DESC",
+        "nulls": "LAST"
+      }
+    ],
+    "limit": {
+      "type": "integer",
+      "value": 10
+    },
+    "offset": {
+      "type": "integer",
+      "value": 0
+    }
+  }
+}

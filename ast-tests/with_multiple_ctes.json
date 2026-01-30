@@ -1,0 +1,83 @@
+{
+  "sql": "WITH a AS (SELECT 1 AS x), b AS (SELECT 2 AS y) SELECT * FROM a, b",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "with": [
+      {
+        "name": "a",
+        "select": {
+          "type": "select",
+          "distinct": false,
+          "all": false,
+          "columns": [
+            {
+              "expr": {
+                "type": "integer",
+                "value": 1
+              },
+              "alias": "x"
+            }
+          ],
+          "from": null,
+          "where": null,
+          "group_by": null,
+          "having": null,
+          "order_by": null,
+          "limit": null
+        }
+      },
+      {
+        "name": "b",
+        "select": {
+          "type": "select",
+          "distinct": false,
+          "all": false,
+          "columns": [
+            {
+              "expr": {
+                "type": "integer",
+                "value": 2
+              },
+              "alias": "y"
+            }
+          ],
+          "from": null,
+          "where": null,
+          "group_by": null,
+          "having": null,
+          "order_by": null,
+          "limit": null
+        }
+      }
+    ],
+    "columns": [
+      {
+        "expr": {
+          "type": "star"
+        },
+        "alias": null
+      }
+    ],
+    "from": [
+      {
+        "type": "table",
+        "name": "a",
+        "alias": null,
+        "join_type": null
+      },
+      {
+        "type": "table",
+        "name": "b",
+        "alias": null,
+        "join_type": "JOIN"
+      }
+    ],
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}

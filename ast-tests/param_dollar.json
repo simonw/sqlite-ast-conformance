@@ -1,0 +1,23 @@
+{
+  "sql": "SELECT $first",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "parameter",
+          "name": "$first"
+        },
+        "alias": null
+      }
+    ],
+    "from": null,
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}
