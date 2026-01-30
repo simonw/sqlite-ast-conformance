@@ -1,0 +1,30 @@
+{
+  "sql": "SELECT :name, @other",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "parameter",
+          "name": ":name"
+        },
+        "alias": null
+      },
+      {
+        "expr": {
+          "type": "parameter",
+          "name": "@other"
+        },
+        "alias": null
+      }
+    ],
+    "from": null,
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}

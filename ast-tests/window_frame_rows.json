@@ -1,0 +1,74 @@
+{
+  "sql": "SELECT x, sum(y) OVER (ORDER BY x ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING) FROM foo",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "columns": [
+      {
+        "expr": {
+          "type": "name",
+          "name": "x"
+        },
+        "alias": null
+      },
+      {
+        "expr": {
+          "type": "function",
+          "name": "sum",
+          "args": [
+            {
+              "type": "name",
+              "name": "y"
+            }
+          ],
+          "distinct": false,
+          "over": {
+            "name": null,
+            "base": null,
+            "order_by": [
+              {
+                "expr": {
+                  "type": "name",
+                  "name": "x"
+                },
+                "direction": "ASC"
+              }
+            ],
+            "frame": {
+              "type": "ROWS",
+              "start": {
+                "type": "PRECEDING",
+                "expr": {
+                  "type": "integer",
+                  "value": 1
+                }
+              },
+              "end": {
+                "type": "FOLLOWING",
+                "expr": {
+                  "type": "integer",
+                  "value": 1
+                }
+              }
+            }
+          }
+        },
+        "alias": null
+      }
+    ],
+    "from": [
+      {
+        "type": "table",
+        "name": "foo",
+        "alias": null,
+        "join_type": null
+      }
+    ],
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}
