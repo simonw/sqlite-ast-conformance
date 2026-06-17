@@ -1104,6 +1104,61 @@ static void json_column(const Table *pTab, const Column *pCol) {
     jw_obj_end();
 }
 
+/* Emit UNIQUE constraints in declaration order. The pIndex list is built
+** in reverse (most recent first), so recurse to the tail and emit on the
+** way back out. */
+static void json_unique_constraints(const Table *pTab, const Index *pIdx) {
+    if (pIdx == NULL) return;
+    json_unique_constraints(pTab, pIdx->pNext);
+    if (pIdx->idxType != SQLITE_IDXTYPE_UNIQUE) return;
+    jw_obj_start();
+    jw_key_str("type", "unique");
+    jw_key("columns");
+    json_index_columns(pTab, pIdx);
+    jw_key_str("on_conflict", conflict_name(pIdx->onError));
+    jw_obj_end();
+}
+
+/* Emit FOREIGN KEY constraints in declaration order. Like pIndex, the
+** pFKey list is in reverse, so recurse to the tail first. */
+static void json_foreign_key_constraints(const Table *pTab, const FKey *pFKey) {
+    if (pFKey == NULL) return;
+    json_foreign_key_constraints(pTab, pFKey->pNextFrom);
+    jw_obj_start();
+    jw_key_str("type", "foreign_key");
+    jw_key("columns");
+    jw_arr_start();
+    for (int i = 0; i < pFKey->nCol; i++) {
+        int iFrom = pFKey->aCol[i].iFrom;
+        if (iFrom >= 0 && iFrom < pTab->nCol) {
+            jw_str(pTab->aCol[iFrom].zCnName);
+        } else {
+            jw_null();
+        }
+    }
+    jw_arr_end();
+    jw_key("references");
+    jw_obj_start();
+    jw_key_str("table", pFKey->zTo);
+    jw_key("columns");
+    /* aCol[i].zCol is NULL when the clause omits the parent column list
+    ** (referencing the parent's PRIMARY KEY). */
+    if (pFKey->nCol > 0 && pFKey->aCol[0].zCol) {
+        jw_arr_start();
+        for (int i = 0; i < pFKey->nCol; i++) {
+            jw_str(pFKey->aCol[i].zCol);
+        }
+        jw_arr_end();
+    } else {
+        jw_null();
+    }
+    jw_obj_end();
+    jw_key_str("on_delete", fk_action_name(pFKey->aAction[0]));
+    jw_key_str("on_update", fk_action_name(pFKey->aAction[1]));
+    jw_key_bool("deferred", pFKey->isDeferred != 0);
+    jw_obj_end();
+}
+
 /* Emit the table-level constraints array: PRIMARY KEY, UNIQUE, CHECK,
 ** and FOREIGN KEY, reconstructed from the lowered Table structures. */
 static void json_table_constraints(const Table *pTab) {
@@ -1137,15 +1192,7 @@ static void json_table_constraints(const Table *pTab) {
     }
 
     /* UNIQUE constraints. */
-    for (const Index *pIdx = pTab->pIndex; pIdx; pIdx = pIdx->pNext) {
-        if (pIdx->idxType != SQLITE_IDXTYPE_UNIQUE) continue;
-        jw_obj_start();
-        jw_key_str("type", "unique");
-        jw_key("columns");
-        json_index_columns(pTab, pIdx);
-        jw_key_str("on_conflict", conflict_name(pIdx->onError));
-        jw_obj_end();
-    }
+    json_unique_constraints(pTab, pTab->pIndex);
 
     /* CHECK constraints (column-level checks are merged into pCheck). */
     if (pTab->pCheck) {
@@ -1160,41 +1207,7 @@ static void json_table_constraints(const Table *pTab) {
 
     /* FOREIGN KEY constraints. */
     if (IsOrdinaryTable(pTab)) {
-        for (const FKey *pFKey = pTab->u.tab.pFKey; pFKey; pFKey = pFKey->pNextFrom) {
-            jw_obj_start();
-            jw_key_str("type", "foreign_key");
-            jw_key("columns");
-            jw_arr_start();
-            for (int i = 0; i < pFKey->nCol; i++) {
-                int iFrom = pFKey->aCol[i].iFrom;
-                if (iFrom >= 0 && iFrom < pTab->nCol) {
-                    jw_str(pTab->aCol[iFrom].zCnName);
-                } else {
-                    jw_null();
-                }
-            }
-            jw_arr_end();
-            jw_key("references");
-            jw_obj_start();
-            jw_key_str("table", pFKey->zTo);
-            jw_key("columns");
-            /* aCol[i].zCol is NULL when the clause omits the parent
-            ** column list (referencing the parent's PRIMARY KEY). */
-            if (pFKey->nCol > 0 && pFKey->aCol[0].zCol) {
-                jw_arr_start();
-                for (int i = 0; i < pFKey->nCol; i++) {
-                    jw_str(pFKey->aCol[i].zCol);
-                }
-                jw_arr_end();
-            } else {
-                jw_null();
-            }
-            jw_obj_end();
-            jw_key_str("on_delete", fk_action_name(pFKey->aAction[0]));
-            jw_key_str("on_update", fk_action_name(pFKey->aAction[1]));
-            jw_key_bool("deferred", pFKey->isDeferred != 0);
-            jw_obj_end();
-        }
+        json_foreign_key_constraints(pTab, pTab->u.tab.pFKey);
     }
 
     jw_arr_end();

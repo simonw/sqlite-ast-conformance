@@ -1,0 +1,59 @@
+{
+  "sql": "CREATE TABLE foo (p, q, FOREIGN KEY (p) REFERENCES m, FOREIGN KEY (q) REFERENCES n)",
+  "ast": {
+    "type": "create_table",
+    "name": "foo",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "without_rowid": false,
+    "strict": false,
+    "columns": [
+      {
+        "name": "p",
+        "type": null,
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      },
+      {
+        "name": "q",
+        "type": null,
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      }
+    ],
+    "constraints": [
+      {
+        "type": "foreign_key",
+        "columns": [
+          "p"
+        ],
+        "references": {
+          "table": "m",
+          "columns": null
+        },
+        "on_delete": null,
+        "on_update": null,
+        "deferred": false
+      },
+      {
+        "type": "foreign_key",
+        "columns": [
+          "q"
+        ],
+        "references": {
+          "table": "n",
+          "columns": null
+        },
+        "on_delete": null,
+        "on_update": null,
+        "deferred": false
+      }
+    ],
+    "as_select": null
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "sql": "CREATE TABLE foo (x, y, UNIQUE (x), UNIQUE (y))",
+  "ast": {
+    "type": "create_table",
+    "name": "foo",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "without_rowid": false,
+    "strict": false,
+    "columns": [
+      {
+        "name": "x",
+        "type": null,
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      },
+      {
+        "name": "y",
+        "type": null,
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      }
+    ],
+    "constraints": [
+      {
+        "type": "unique",
+        "columns": [
+          {
+            "name": "x",
+            "direction": "ASC"
+          }
+        ],
+        "on_conflict": null
+      },
+      {
+        "type": "unique",
+        "columns": [
+          {
+            "name": "y",
+            "direction": "ASC"
+          }
+        ],
+        "on_conflict": null
+      }
+    ],
+    "as_select": null
+  }
+}
