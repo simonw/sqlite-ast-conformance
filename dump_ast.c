@@ -1160,7 +1160,12 @@ static void json_foreign_key_constraints(const Table *pTab, const FKey *pFKey) {
 }
 
 /* Emit the table-level constraints array: PRIMARY KEY, UNIQUE, CHECK,
-** and FOREIGN KEY, reconstructed from the lowered Table structures. */
+** and FOREIGN KEY, reconstructed from the lowered Table structures.
+**
+** Constraint names (CONSTRAINT foo ...) are intentionally not emitted:
+** SQLite only consumes the name to label CHECK expressions internally and
+** discards it for PRIMARY KEY / UNIQUE / FOREIGN KEY, so it is not
+** recoverable here. */
 static void json_table_constraints(const Table *pTab) {
     jw_arr_start();
 

@@ -47,6 +47,22 @@ fixtures must likewise normalize single-column `PRIMARY KEY` / `UNIQUE` to the
 table level. Attributes that SQLite *does* keep per-column — `not_null`,
 `default`, `collate`, `generated` — remain attached to the column.
 
+Column-level `CHECK` and `REFERENCES` are normalized the same way: a
+`CHECK` written on a column is merged into the table-level `check` list, and
+a column `REFERENCES` becomes a table-level `foreign_key`.
+
+Some syntax is discarded by SQLite's parser before it reaches the
+reconstructed object, and so cannot be represented:
+
+- **Constraint names.** `CONSTRAINT foo PRIMARY KEY (...)` keeps only the
+  constraint, not `foo`. SQLite reads the name solely to attach it to `CHECK`
+  expressions internally; for `PRIMARY KEY` / `UNIQUE` / `FOREIGN KEY` it is
+  never stored. Names are therefore omitted entirely (including for `CHECK`,
+  where the storage is ambiguous with the auto-generated constraint text).
+- **`ON CONFLICT ABORT`** is indistinguishable from no clause (both are the
+  default), so `on_conflict` is `null` for both.
+- **Foreign-key `MATCH`** clauses are parsed but discarded by SQLite.
+
 ## Test file format
 
 Each JSON file in `sqlite_ast_conformance/ast-tests/` has two keys:
