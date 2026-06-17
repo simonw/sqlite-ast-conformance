@@ -1,0 +1,32 @@
+{
+  "sql": "CREATE TABLE foo (id INTEGER, name TEXT)",
+  "ast": {
+    "type": "create_table",
+    "name": "foo",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "without_rowid": false,
+    "strict": false,
+    "columns": [
+      {
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      },
+      {
+        "name": "name",
+        "type": "TEXT",
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      }
+    ],
+    "constraints": [],
+    "as_select": null
+  }
+}

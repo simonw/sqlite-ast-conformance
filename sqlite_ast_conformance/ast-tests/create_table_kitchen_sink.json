@@ -1,0 +1,159 @@
+{
+  "sql": "CREATE TABLE foo (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL DEFAULT 'anon' COLLATE NOCASE, age INT CHECK (age >= 0), email TEXT UNIQUE, parent_id INT REFERENCES foo (id) ON DELETE CASCADE, full TEXT AS (name || age) VIRTUAL, CHECK (length(name) > 0))",
+  "ast": {
+    "type": "create_table",
+    "name": "foo",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "without_rowid": false,
+    "strict": false,
+    "columns": [
+      {
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      },
+      {
+        "name": "name",
+        "type": "TEXT",
+        "not_null": true,
+        "default": {
+          "type": "span",
+          "text": "'anon'",
+          "expr": {
+            "type": "string",
+            "value": "anon"
+          }
+        },
+        "collate": "NOCASE",
+        "generated": null
+      },
+      {
+        "name": "age",
+        "type": "INT",
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      },
+      {
+        "name": "email",
+        "type": "TEXT",
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      },
+      {
+        "name": "parent_id",
+        "type": "INT",
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      },
+      {
+        "name": "full",
+        "type": "TEXT",
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": {
+          "expr": {
+            "type": "binary",
+            "op": "||",
+            "left": {
+              "type": "name",
+              "name": "name"
+            },
+            "right": {
+              "type": "name",
+              "name": "age"
+            }
+          },
+          "stored": false
+        }
+      }
+    ],
+    "constraints": [
+      {
+        "type": "primary_key",
+        "columns": [
+          {
+            "name": "id",
+            "direction": "ASC"
+          }
+        ],
+        "autoincrement": true,
+        "on_conflict": null
+      },
+      {
+        "type": "unique",
+        "columns": [
+          {
+            "name": "email",
+            "direction": "ASC"
+          }
+        ],
+        "on_conflict": null
+      },
+      {
+        "type": "check",
+        "expr": {
+          "type": "binary",
+          "op": ">=",
+          "left": {
+            "type": "name",
+            "name": "age"
+          },
+          "right": {
+            "type": "integer",
+            "value": 0
+          }
+        }
+      },
+      {
+        "type": "check",
+        "expr": {
+          "type": "binary",
+          "op": ">",
+          "left": {
+            "type": "function",
+            "name": "length",
+            "args": [
+              {
+                "type": "name",
+                "name": "name"
+              }
+            ],
+            "distinct": false
+          },
+          "right": {
+            "type": "integer",
+            "value": 0
+          }
+        }
+      },
+      {
+        "type": "foreign_key",
+        "columns": [
+          "parent_id"
+        ],
+        "references": {
+          "table": "foo",
+          "columns": [
+            "id"
+          ]
+        },
+        "on_delete": "CASCADE",
+        "on_update": null,
+        "deferred": false
+      }
+    ],
+    "as_select": null
+  }
+}

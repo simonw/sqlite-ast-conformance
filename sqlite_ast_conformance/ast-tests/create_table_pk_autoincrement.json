@@ -1,0 +1,36 @@
+{
+  "sql": "CREATE TABLE foo (id INTEGER PRIMARY KEY AUTOINCREMENT)",
+  "ast": {
+    "type": "create_table",
+    "name": "foo",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "without_rowid": false,
+    "strict": false,
+    "columns": [
+      {
+        "name": "id",
+        "type": "INTEGER",
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      }
+    ],
+    "constraints": [
+      {
+        "type": "primary_key",
+        "columns": [
+          {
+            "name": "id",
+            "direction": "ASC"
+          }
+        ],
+        "autoincrement": true,
+        "on_conflict": null
+      }
+    ],
+    "as_select": null
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "sql": "CREATE TABLE foo (a, b, PRIMARY KEY (a, b))",
+  "ast": {
+    "type": "create_table",
+    "name": "foo",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "without_rowid": false,
+    "strict": false,
+    "columns": [
+      {
+        "name": "a",
+        "type": null,
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      },
+      {
+        "name": "b",
+        "type": null,
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      }
+    ],
+    "constraints": [
+      {
+        "type": "primary_key",
+        "columns": [
+          {
+            "name": "a",
+            "direction": "ASC"
+          },
+          {
+            "name": "b",
+            "direction": "ASC"
+          }
+        ],
+        "autoincrement": false,
+        "on_conflict": null
+      }
+    ],
+    "as_select": null
+  }
+}

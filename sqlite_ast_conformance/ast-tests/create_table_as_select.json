@@ -1,0 +1,59 @@
+{
+  "sql": "CREATE TABLE foo AS SELECT a, b FROM bar WHERE a > 1",
+  "ast": {
+    "type": "create_table",
+    "name": "foo",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "without_rowid": false,
+    "strict": false,
+    "columns": [],
+    "constraints": [],
+    "as_select": {
+      "type": "select",
+      "distinct": false,
+      "all": false,
+      "columns": [
+        {
+          "expr": {
+            "type": "name",
+            "name": "a"
+          },
+          "alias": null
+        },
+        {
+          "expr": {
+            "type": "name",
+            "name": "b"
+          },
+          "alias": null
+        }
+      ],
+      "from": [
+        {
+          "type": "table",
+          "name": "bar",
+          "alias": null,
+          "join_type": null
+        }
+      ],
+      "where": {
+        "type": "binary",
+        "op": ">",
+        "left": {
+          "type": "name",
+          "name": "a"
+        },
+        "right": {
+          "type": "integer",
+          "value": 1
+        }
+      },
+      "group_by": null,
+      "having": null,
+      "order_by": null,
+      "limit": null
+    }
+  }
+}

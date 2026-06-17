@@ -1,0 +1,40 @@
+{
+  "sql": "CREATE TABLE foo (a, b, c)",
+  "ast": {
+    "type": "create_table",
+    "name": "foo",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "without_rowid": false,
+    "strict": false,
+    "columns": [
+      {
+        "name": "a",
+        "type": null,
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      },
+      {
+        "name": "b",
+        "type": null,
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      },
+      {
+        "name": "c",
+        "type": null,
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      }
+    ],
+    "constraints": [],
+    "as_select": null
+  }
+}

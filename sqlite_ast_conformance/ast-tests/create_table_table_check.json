@@ -1,0 +1,48 @@
+{
+  "sql": "CREATE TABLE foo (a, b, CHECK (a < b))",
+  "ast": {
+    "type": "create_table",
+    "name": "foo",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "without_rowid": false,
+    "strict": false,
+    "columns": [
+      {
+        "name": "a",
+        "type": null,
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      },
+      {
+        "name": "b",
+        "type": null,
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      }
+    ],
+    "constraints": [
+      {
+        "type": "check",
+        "expr": {
+          "type": "binary",
+          "op": "<",
+          "left": {
+            "type": "name",
+            "name": "a"
+          },
+          "right": {
+            "type": "name",
+            "name": "b"
+          }
+        }
+      }
+    ],
+    "as_select": null
+  }
+}

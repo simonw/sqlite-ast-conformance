@@ -1,0 +1,40 @@
+{
+  "sql": "CREATE TABLE foo (a INT CHECK (a > 0))",
+  "ast": {
+    "type": "create_table",
+    "name": "foo",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "without_rowid": false,
+    "strict": false,
+    "columns": [
+      {
+        "name": "a",
+        "type": "INT",
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      }
+    ],
+    "constraints": [
+      {
+        "type": "check",
+        "expr": {
+          "type": "binary",
+          "op": ">",
+          "left": {
+            "type": "name",
+            "name": "a"
+          },
+          "right": {
+            "type": "integer",
+            "value": 0
+          }
+        }
+      }
+    ],
+    "as_select": null
+  }
+}

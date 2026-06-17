@@ -1,0 +1,61 @@
+{
+  "sql": "CREATE TABLE foo (a INT DEFAULT 0, b TEXT DEFAULT 'hi', c REAL DEFAULT (1.5))",
+  "ast": {
+    "type": "create_table",
+    "name": "foo",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "without_rowid": false,
+    "strict": false,
+    "columns": [
+      {
+        "name": "a",
+        "type": "INT",
+        "not_null": false,
+        "default": {
+          "type": "span",
+          "text": "0",
+          "expr": {
+            "type": "integer",
+            "value": 0
+          }
+        },
+        "collate": null,
+        "generated": null
+      },
+      {
+        "name": "b",
+        "type": "TEXT",
+        "not_null": false,
+        "default": {
+          "type": "span",
+          "text": "'hi'",
+          "expr": {
+            "type": "string",
+            "value": "hi"
+          }
+        },
+        "collate": null,
+        "generated": null
+      },
+      {
+        "name": "c",
+        "type": "REAL",
+        "not_null": false,
+        "default": {
+          "type": "span",
+          "text": "1.5",
+          "expr": {
+            "type": "float",
+            "value": "1.5"
+          }
+        },
+        "collate": null,
+        "generated": null
+      }
+    ],
+    "constraints": [],
+    "as_select": null
+  }
+}

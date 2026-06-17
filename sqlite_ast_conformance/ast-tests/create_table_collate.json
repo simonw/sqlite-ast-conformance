@@ -1,0 +1,24 @@
+{
+  "sql": "CREATE TABLE foo (a TEXT COLLATE NOCASE)",
+  "ast": {
+    "type": "create_table",
+    "name": "foo",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "without_rowid": false,
+    "strict": false,
+    "columns": [
+      {
+        "name": "a",
+        "type": "TEXT",
+        "not_null": false,
+        "default": null,
+        "collate": "NOCASE",
+        "generated": null
+      }
+    ],
+    "constraints": [],
+    "as_select": null
+  }
+}

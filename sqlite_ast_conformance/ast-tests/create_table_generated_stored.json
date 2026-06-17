@@ -1,0 +1,46 @@
+{
+  "sql": "CREATE TABLE foo (a INT, b TEXT GENERATED ALWAYS AS (a || 'x') STORED)",
+  "ast": {
+    "type": "create_table",
+    "name": "foo",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "without_rowid": false,
+    "strict": false,
+    "columns": [
+      {
+        "name": "a",
+        "type": "INT",
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      },
+      {
+        "name": "b",
+        "type": "TEXT",
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": {
+          "expr": {
+            "type": "binary",
+            "op": "||",
+            "left": {
+              "type": "name",
+              "name": "a"
+            },
+            "right": {
+              "type": "string",
+              "value": "x"
+            }
+          },
+          "stored": true
+        }
+      }
+    ],
+    "constraints": [],
+    "as_select": null
+  }
+}

@@ -1,8 +1,8 @@
 # sqlite-ast-conformance
 
-A language-independent conformance suite for implementations of a SQLite SELECT query parser.
+A language-independent conformance suite for implementations of a SQLite SQL parser. Both `SELECT` queries and `CREATE TABLE` statements are covered.
 
-The `sqlite_ast_conformance/ast-tests/` directory contains JSON files, each defining a SQL query and its expected abstract syntax tree (AST). These test fixtures are generated using the **official SQLite parser** so they represent ground truth for how SQLite parses SELECT statements.
+The `sqlite_ast_conformance/ast-tests/` directory contains JSON files, each defining a SQL statement and its expected abstract syntax tree (AST). These test fixtures are generated using the **official SQLite parser** so they represent ground truth for how SQLite parses these statements.
 
 The package is available on PyPI, so you can install it and access the test fixtures programmatically:
 
@@ -24,6 +24,15 @@ The ASTs represent the **raw parse tree** produced by SQLite's Lemon parser, cap
 - `SELECT *` produces `{"type": "star"}` — no schema knowledge needed
 - `SELECT foo.bar` produces a `dot` node with `name` children — no table lookups
 - All tests run against an in-memory database with no tables
+
+`CREATE TABLE` is a partial exception: SQLite does not keep it as a single
+parse tree but builds a `Table` object through imperative grammar actions,
+lowering `PRIMARY KEY` / `UNIQUE` constraints into indexes as it parses. The
+`create_table` AST is therefore *reconstructed* from that object back into a
+syntactic shape (constraints, not indexes). One consequence: SQLite does not
+record whether a single-column `PRIMARY KEY` / `UNIQUE` was written at the
+column level or the table level, so all of them are emitted in the
+table-level `constraints` array.
 
 ## Test file format
 
@@ -86,7 +95,7 @@ cd ..
 make
 ```
 
-This patches the SQLite amalgamation to insert an AST capture hook into the parser's grammar action for `cmd ::= select`, then compiles `dump_ast.c` which includes the patched amalgamation and provides a JSON serializer for the AST.
+This patches the SQLite amalgamation to insert AST capture hooks — into the parser's grammar action for `cmd ::= select` and into `sqlite3StartTable()` / `sqlite3EndTable()` for `CREATE TABLE` — then compiles `dump_ast.c`, which includes the patched amalgamation and provides a JSON serializer for the AST.
 
 ### 4. Run the conformance tests
 
@@ -161,6 +170,45 @@ type: "select"
 ```
 
 Compound selects (`UNION`, `INTERSECT`, `EXCEPT`) use `type: "compound"` with a `body` array.
+
+### CREATE TABLE
+
+```
+type: "create_table"
+├── name: str
+├── schema: str|null          (e.g. "main" / "temp" when qualified)
+├── temp: bool
+├── if_not_exists: bool
+├── without_rowid: bool
+├── strict: bool
+├── columns: [
+│     {
+│       name: str,
+│       type: str|null,        (declared type, verbatim)
+│       not_null: bool,
+│       default: expr|null,
+│       collate: str|null,
+│       generated: {expr, stored: bool} | null
+│     }, ...
+│   ]
+├── constraints: [...table-level constraints...]
+└── as_select: select|null     (for CREATE TABLE ... AS SELECT)
+```
+
+Table-level constraints (each an object with a `type`):
+
+| Type | Key fields |
+|------|------------|
+| `primary_key` | `columns: [{name, direction}]`, `autoincrement`, `on_conflict` |
+| `unique` | `columns: [{name, direction}]`, `on_conflict` |
+| `check` | `expr` |
+| `foreign_key` | `columns`, `references: {table, columns}`, `on_delete`, `on_update`, `deferred` |
+
+`on_conflict` is `null` for the default (`ABORT`) and otherwise one of
+`ROLLBACK` / `FAIL` / `IGNORE` / `REPLACE`. Foreign-key `on_delete` /
+`on_update` are `null` for `NO ACTION` and otherwise `RESTRICT` / `SET NULL` /
+`SET DEFAULT` / `CASCADE`. A `references.columns` of `null` means the clause
+omitted the parent column list (referencing the parent's primary key).
 
 ## Using these tests in your own parser
 

@@ -18,11 +18,21 @@
 #include <stdarg.h>
 
 /* ----------------------------------------------------------------
- * Forward declaration of the hook function.
- * The patched amalgamation calls this from the grammar action
- * for "cmd ::= select(X)", passing the Select* as void*.
+ * Forward declarations of the hook functions.
+ *
+ * The patched amalgamation calls these from inside the parser:
+ *   - ast_capture_hook from the grammar action for "cmd ::= select(X)"
+ *   - ast_capture_table_start from the top of sqlite3StartTable()
+ *   - ast_capture_table_end from the top of sqlite3EndTable()
+ *
+ * All SQLite types (Parse, Token, Select, ...) are passed as void* /
+ * scalars because the amalgamation - which defines those types - is
+ * included below, *after* these declarations.
  * ---------------------------------------------------------------- */
 void ast_capture_hook(void *select_ptr);
+void ast_capture_table_start(void *pParse, void *pName1, void *pName2,
+                             int isTemp, int isView, int isVirtual, int noErr);
+void ast_capture_table_end(void *pParse, unsigned int tabOpts, void *pSelect);
 
 /* ----------------------------------------------------------------
  * Include the patched SQLite amalgamation.
@@ -999,6 +1009,238 @@ static void json_select(const Select *p) {
 }
 
 /* ================================================================
+ * AST Serialization - CREATE TABLE
+ *
+ * Unlike SELECT, SQLite does not keep CREATE TABLE as a single parse
+ * tree. The grammar builds a Table object in pParse->pNewTable through
+ * a sequence of imperative actions, lowering some syntax as it goes
+ * (notably PRIMARY KEY and UNIQUE constraints become Index objects).
+ *
+ * We reconstruct a *syntactic* representation from that Table: column
+ * types and per-column attributes (NOT NULL, DEFAULT, COLLATE,
+ * GENERATED) are read back directly, while PRIMARY KEY / UNIQUE /
+ * CHECK / FOREIGN KEY constraints are emitted as table-level entries
+ * recovered from the lowered structures. (SQLite does not preserve
+ * whether a single-column PK/UNIQUE was written at the column or the
+ * table level, so all of them surface in the "constraints" array.)
+ * ================================================================ */
+
+/* Map an ON CONFLICT resolution to its keyword, or NULL for the
+** default (ABORT / unspecified). */
+static const char *conflict_name(int oe) {
+    switch (oe) {
+        case OE_Rollback: return "ROLLBACK";
+        case OE_Fail:     return "FAIL";
+        case OE_Ignore:   return "IGNORE";
+        case OE_Replace:  return "REPLACE";
+        default:          return NULL; /* OE_Abort / OE_Default */
+    }
+}
+
+/* Map a foreign-key action to its keyword, or NULL for NO ACTION. */
+static const char *fk_action_name(int oe) {
+    switch (oe) {
+        case OE_Restrict: return "RESTRICT";
+        case OE_SetNull:  return "SET NULL";
+        case OE_SetDflt:  return "SET DEFAULT";
+        case OE_Cascade:  return "CASCADE";
+        default:          return NULL; /* OE_None == NO ACTION */
+    }
+}
+
+/* Emit the column list of a PRIMARY KEY / UNIQUE index as
+** [{"name": ..., "direction": "ASC"|"DESC"}, ...] */
+static void json_index_columns(const Table *pTab, const Index *pIdx) {
+    jw_arr_start();
+    for (int i = 0; i < pIdx->nKeyCol; i++) {
+        jw_obj_start();
+        i16 iCol = pIdx->aiColumn[i];
+        if (iCol >= 0 && iCol < pTab->nCol) {
+            jw_key_str("name", pTab->aCol[iCol].zCnName);
+        } else {
+            jw_key_null("name");
+        }
+        int desc = pIdx->aSortOrder && (pIdx->aSortOrder[i] & KEYINFO_ORDER_DESC);
+        jw_key_str("direction", desc ? "DESC" : "ASC");
+        jw_obj_end();
+    }
+    jw_arr_end();
+}
+
+/* Emit a single column definition. */
+static void json_column(const Table *pTab, const Column *pCol) {
+    jw_obj_start();
+    jw_key_str("name", pCol->zCnName);
+
+    char *zType = sqlite3ColumnType((Column *)pCol, 0);
+    jw_key_str("type", zType);
+
+    jw_key_bool("not_null", pCol->notNull != OE_None);
+
+    /* DEFAULT and GENERATED share the column's expression slot. */
+    int isGenerated = (pCol->colFlags & COLFLAG_GENERATED) != 0;
+    Expr *pExpr = sqlite3ColumnExpr((Table *)pTab, (Column *)pCol);
+
+    if (!isGenerated && pCol->iDflt) {
+        jw_key("default");
+        json_expr(pExpr);
+    } else {
+        jw_key_null("default");
+    }
+
+    jw_key_str("collate", sqlite3ColumnColl((Column *)pCol));
+
+    if (isGenerated) {
+        jw_key("generated");
+        jw_obj_start();
+        jw_key("expr");
+        json_expr(pExpr);
+        jw_key_bool("stored", (pCol->colFlags & COLFLAG_STORED) != 0);
+        jw_obj_end();
+    } else {
+        jw_key_null("generated");
+    }
+
+    jw_obj_end();
+}
+
+/* Emit the table-level constraints array: PRIMARY KEY, UNIQUE, CHECK,
+** and FOREIGN KEY, reconstructed from the lowered Table structures. */
+static void json_table_constraints(const Table *pTab) {
+    jw_arr_start();
+
+    /* PRIMARY KEY. An INTEGER PRIMARY KEY rowid alias is recorded in
+    ** iPKey; every other form becomes a PRIMARYKEY index. */
+    if (pTab->iPKey >= 0) {
+        jw_obj_start();
+        jw_key_str("type", "primary_key");
+        jw_key("columns");
+        jw_arr_start();
+        jw_obj_start();
+        jw_key_str("name", pTab->aCol[pTab->iPKey].zCnName);
+        jw_key_str("direction", "ASC");
+        jw_obj_end();
+        jw_arr_end();
+        jw_key_bool("autoincrement", (pTab->tabFlags & TF_Autoincrement) != 0);
+        jw_key_str("on_conflict", conflict_name(pTab->keyConf));
+        jw_obj_end();
+    }
+    for (const Index *pIdx = pTab->pIndex; pIdx; pIdx = pIdx->pNext) {
+        if (pIdx->idxType != SQLITE_IDXTYPE_PRIMARYKEY) continue;
+        jw_obj_start();
+        jw_key_str("type", "primary_key");
+        jw_key("columns");
+        json_index_columns(pTab, pIdx);
+        jw_key_bool("autoincrement", 0);
+        jw_key_str("on_conflict", conflict_name(pIdx->onError));
+        jw_obj_end();
+    }
+
+    /* UNIQUE constraints. */
+    for (const Index *pIdx = pTab->pIndex; pIdx; pIdx = pIdx->pNext) {
+        if (pIdx->idxType != SQLITE_IDXTYPE_UNIQUE) continue;
+        jw_obj_start();
+        jw_key_str("type", "unique");
+        jw_key("columns");
+        json_index_columns(pTab, pIdx);
+        jw_key_str("on_conflict", conflict_name(pIdx->onError));
+        jw_obj_end();
+    }
+
+    /* CHECK constraints (column-level checks are merged into pCheck). */
+    if (pTab->pCheck) {
+        for (int i = 0; i < pTab->pCheck->nExpr; i++) {
+            jw_obj_start();
+            jw_key_str("type", "check");
+            jw_key("expr");
+            json_expr(pTab->pCheck->a[i].pExpr);
+            jw_obj_end();
+        }
+    }
+
+    /* FOREIGN KEY constraints. */
+    if (IsOrdinaryTable(pTab)) {
+        for (const FKey *pFKey = pTab->u.tab.pFKey; pFKey; pFKey = pFKey->pNextFrom) {
+            jw_obj_start();
+            jw_key_str("type", "foreign_key");
+            jw_key("columns");
+            jw_arr_start();
+            for (int i = 0; i < pFKey->nCol; i++) {
+                int iFrom = pFKey->aCol[i].iFrom;
+                if (iFrom >= 0 && iFrom < pTab->nCol) {
+                    jw_str(pTab->aCol[iFrom].zCnName);
+                } else {
+                    jw_null();
+                }
+            }
+            jw_arr_end();
+            jw_key("references");
+            jw_obj_start();
+            jw_key_str("table", pFKey->zTo);
+            jw_key("columns");
+            /* aCol[i].zCol is NULL when the clause omits the parent
+            ** column list (referencing the parent's PRIMARY KEY). */
+            if (pFKey->nCol > 0 && pFKey->aCol[0].zCol) {
+                jw_arr_start();
+                for (int i = 0; i < pFKey->nCol; i++) {
+                    jw_str(pFKey->aCol[i].zCol);
+                }
+                jw_arr_end();
+            } else {
+                jw_null();
+            }
+            jw_obj_end();
+            jw_key_str("on_delete", fk_action_name(pFKey->aAction[0]));
+            jw_key_str("on_update", fk_action_name(pFKey->aAction[1]));
+            jw_key_bool("deferred", pFKey->isDeferred != 0);
+            jw_obj_end();
+        }
+    }
+
+    jw_arr_end();
+}
+
+/* State captured by ast_capture_table_start() and consumed by
+** ast_capture_table_end(). */
+static int   g_ct_active = 0;        /* inside a CREATE TABLE statement */
+static int   g_ct_is_temp = 0;
+static int   g_ct_if_not_exists = 0;
+static char *g_ct_name = NULL;
+static char *g_ct_schema = NULL;
+
+static void json_table(const Table *p, unsigned int tabOpts, const Select *pSelect) {
+    jw_obj_start();
+    jw_key_str("type", "create_table");
+    jw_key_str("name", g_ct_name ? g_ct_name : p->zName);
+    jw_key_str("schema", g_ct_schema);
+    jw_key_bool("temp", g_ct_is_temp);
+    jw_key_bool("if_not_exists", g_ct_if_not_exists);
+    jw_key_bool("without_rowid",
+        (tabOpts & TF_WithoutRowid) || (p->tabFlags & TF_WithoutRowid));
+    jw_key_bool("strict", (tabOpts & TF_Strict) != 0);
+
+    jw_key("columns");
+    jw_arr_start();
+    for (int i = 0; i < p->nCol; i++) {
+        json_column(p, &p->aCol[i]);
+    }
+    jw_arr_end();
+
+    jw_key("constraints");
+    json_table_constraints(p);
+
+    /* CREATE TABLE ... AS SELECT. */
+    if (pSelect) {
+        jw_key("as_select");
+        json_select(pSelect);
+    } else {
+        jw_key_null("as_select");
+    }
+
+    jw_obj_end();
+}
+
+/* ================================================================
  * Hook Function - Called from patched grammar action
  * ================================================================ */
 
@@ -1008,11 +1250,69 @@ static int g_captured = 0;
 
 void ast_capture_hook(void *select_ptr) {
     if (!g_capture_enabled) return;
+    /* Inside CREATE TABLE ... AS SELECT the inner SELECT belongs to the
+    ** table statement; the table hook emits it (and the rest). */
+    if (g_ct_active) return;
     if (g_captured) return;  /* Only capture the first SELECT (the user's query) */
     g_captured = 1;
     Select *p = (Select *)select_ptr;
     jw_init();
     json_select(p);
+}
+
+/*
+** Called from the top of sqlite3StartTable(). Records the table name,
+** schema, TEMP and IF NOT EXISTS - none of which survive intact on the
+** finished Table object - and marks that we are inside a CREATE TABLE so
+** the SELECT hook stands down for an AS SELECT body.
+**
+** Views and virtual tables also route through sqlite3StartTable() but are
+** finished by other paths (sqlite3EndTable() is not called), so we ignore
+** them here and never emit anything for them.
+*/
+void ast_capture_table_start(void *pParse_, void *pName1_, void *pName2_,
+                             int isTemp, int isView, int isVirtual, int noErr) {
+    if (!g_capture_enabled) return;
+    if (isView || isVirtual) return;
+    Parse *pParse = (Parse *)pParse_;
+    sqlite3 *db = pParse->db;
+    /* Ignore internal schema parsing (e.g. the sqlite_schema bootstrap);
+    ** only the user's own statement should be captured. */
+    if (db->init.busy) return;
+    Token *pName1 = (Token *)pName1_;
+    Token *pName2 = (Token *)pName2_;
+
+    g_ct_active = 1;
+    g_ct_is_temp = isTemp ? 1 : 0;
+    g_ct_if_not_exists = noErr ? 1 : 0;
+
+    free(g_ct_name);   g_ct_name = NULL;
+    free(g_ct_schema); g_ct_schema = NULL;
+
+    /* "schema.table" arrives as (pName1=schema, pName2=table). */
+    Token *pNameTok = (pName2 && pName2->n > 0) ? pName2 : pName1;
+    char *zSchema = (pName2 && pName2->n > 0) ? sqlite3NameFromToken(db, pName1) : NULL;
+    char *zName = pNameTok ? sqlite3NameFromToken(db, pNameTok) : NULL;
+    if (zName) { g_ct_name = strdup(zName); sqlite3DbFree(db, zName); }
+    if (zSchema) { g_ct_schema = strdup(zSchema); sqlite3DbFree(db, zSchema); }
+}
+
+/*
+** Called from the top of sqlite3EndTable(), once the whole table body has
+** been parsed into pParse->pNewTable but before WITHOUT ROWID / STRICT
+** post-processing runs. WITHOUT ROWID and STRICT therefore come from the
+** tabOpts argument rather than the table flags.
+*/
+void ast_capture_table_end(void *pParse_, unsigned int tabOpts, void *pSelect) {
+    if (!g_capture_enabled) return;
+    if (g_captured) return;
+    Parse *pParse = (Parse *)pParse_;
+    if (pParse->db->init.busy) return;
+    Table *p = pParse->pNewTable;
+    if (p == NULL) return;
+    g_captured = 1;
+    jw_init();
+    json_table(p, tabOpts, (Select *)pSelect);
 }
 
 /* ================================================================
@@ -1040,6 +1340,7 @@ int main(int argc, char **argv) {
     /* Enable AST capture */
     g_capture_enabled = 1;
     g_captured = 0;
+    g_ct_active = 0;
     jw_init();
 
     /*

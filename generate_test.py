@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 
 DUMP_AST = Path(__file__).parent / "build" / "dump_ast"
-AST_TESTS_DIR = Path(__file__).parent / "ast-tests"
+AST_TESTS_DIR = Path(__file__).parent / "sqlite_ast_conformance" / "ast-tests"
 
 
 def generate_one(name: str, sql: str) -> bool:

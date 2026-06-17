@@ -1,0 +1,43 @@
+{
+  "sql": "CREATE TABLE foo (a INT UNIQUE, b TEXT)",
+  "ast": {
+    "type": "create_table",
+    "name": "foo",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "without_rowid": false,
+    "strict": false,
+    "columns": [
+      {
+        "name": "a",
+        "type": "INT",
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      },
+      {
+        "name": "b",
+        "type": "TEXT",
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      }
+    ],
+    "constraints": [
+      {
+        "type": "unique",
+        "columns": [
+          {
+            "name": "a",
+            "direction": "ASC"
+          }
+        ],
+        "on_conflict": null
+      }
+    ],
+    "as_select": null
+  }
+}

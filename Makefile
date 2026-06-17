@@ -16,9 +16,15 @@ $(BUILD_DIR):
 # Detect GNU sed (gsed on macOS, sed on Linux)
 SED := $(shell command -v gsed 2>/dev/null || echo sed)
 
-# Patch the amalgamation to add AST capture hook
+# Patch the amalgamation to add AST capture hooks:
+#   - SELECT:       before the SelectDest in the "cmd ::= select" action
+#   - CREATE TABLE: at the top of sqlite3StartTable() (name/TEMP/IF NOT
+#                   EXISTS) and sqlite3EndTable() (the finished Table)
 $(PATCHED): $(SQLITE_SRC) | $(BUILD_DIR)
-	$(SED) '/SelectDest dest = {SRT_Output, 0, 0, 0, 0, 0, 0};/i\  ast_capture_hook((void*)yymsp[0].minor.yy555);' \
+	$(SED) \
+		-e '/SelectDest dest = {SRT_Output, 0, 0, 0, 0, 0, 0};/i\  ast_capture_hook((void*)yymsp[0].minor.yy555);' \
+		-e '/int iDb;         \/\* Database number to create the table in \*\//a\  ast_capture_table_start(pParse, pName1, pName2, isTemp, isView, isVirtual, noErr);' \
+		-e '/Table \*p;                 \/\* The new table \*\//a\  ast_capture_table_end(pParse, tabOpts, pSelect);' \
 		$(SQLITE_SRC) > $(PATCHED)
 
 # Build the dump_ast tool

@@ -1,0 +1,35 @@
+{
+  "sql": "CREATE TABLE foo (a INT UNIQUE ON CONFLICT REPLACE)",
+  "ast": {
+    "type": "create_table",
+    "name": "foo",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "without_rowid": false,
+    "strict": false,
+    "columns": [
+      {
+        "name": "a",
+        "type": "INT",
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      }
+    ],
+    "constraints": [
+      {
+        "type": "unique",
+        "columns": [
+          {
+            "name": "a",
+            "direction": "ASC"
+          }
+        ],
+        "on_conflict": "REPLACE"
+      }
+    ],
+    "as_select": null
+  }
+}

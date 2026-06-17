@@ -1,0 +1,46 @@
+{
+  "sql": "CREATE TABLE foo (a INT, b AS (a * 2))",
+  "ast": {
+    "type": "create_table",
+    "name": "foo",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "without_rowid": false,
+    "strict": false,
+    "columns": [
+      {
+        "name": "a",
+        "type": "INT",
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": null
+      },
+      {
+        "name": "b",
+        "type": null,
+        "not_null": false,
+        "default": null,
+        "collate": null,
+        "generated": {
+          "expr": {
+            "type": "binary",
+            "op": "*",
+            "left": {
+              "type": "name",
+              "name": "a"
+            },
+            "right": {
+              "type": "integer",
+              "value": 2
+            }
+          },
+          "stored": false
+        }
+      }
+    ],
+    "constraints": [],
+    "as_select": null
+  }
+}
