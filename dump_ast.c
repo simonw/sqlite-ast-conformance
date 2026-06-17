@@ -1337,6 +1337,20 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    /*
+    ** Fully load the (empty) schema while capture is still disabled, then pin
+    ** the file format to 4. A fresh :memory: database is initialised with
+    ** file_format == 1, which makes sqlite3CreateIndex() silently ignore DESC
+    ** sort order on PRIMARY KEY / UNIQUE / index columns (DESC is only honored
+    ** from file format 4 onwards). Loading the schema here means the later
+    ** prepare reuses it without re-initialising, so this value sticks - and the
+    ** internal schema read is not captured because capture is still off.
+    */
+    sqlite3_exec(db, "SELECT * FROM sqlite_master", 0, 0, 0);
+    for (int i = 0; i < db->nDb; i++) {
+        if (db->aDb[i].pSchema) db->aDb[i].pSchema->file_format = 4;
+    }
+
     /* Enable AST capture */
     g_capture_enabled = 1;
     g_captured = 0;
