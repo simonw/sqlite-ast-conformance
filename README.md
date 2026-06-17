@@ -34,6 +34,19 @@ record whether a single-column `PRIMARY KEY` / `UNIQUE` was written at the
 column level or the table level, so all of them are emitted in the
 table-level `constraints` array.
 
+For example, these two statements produce the **identical** AST:
+
+```sql
+CREATE TABLE foo (a INT PRIMARY KEY, b TEXT)
+CREATE TABLE foo (a INT, b TEXT, PRIMARY KEY (a))
+```
+
+In both, the key appears only in the table-level `constraints` array and the
+`a` column object is the same either way. A parser tested against these
+fixtures must likewise normalize single-column `PRIMARY KEY` / `UNIQUE` to the
+table level. Attributes that SQLite *does* keep per-column — `not_null`,
+`default`, `collate`, `generated` — remain attached to the column.
+
 ## Test file format
 
 Each JSON file in `sqlite_ast_conformance/ast-tests/` has two keys:
