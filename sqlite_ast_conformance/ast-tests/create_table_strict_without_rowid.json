@@ -1,0 +1,43 @@
+{
+  "sql": "CREATE TABLE t (a INT PRIMARY KEY) STRICT, WITHOUT ROWID",
+  "ast": {
+    "type": "create_table",
+    "name": "t",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "columns": [
+      {
+        "name": "a",
+        "type": "INT",
+        "affinity": "INTEGER",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": true,
+        "unique": true,
+        "generated": null
+      }
+    ],
+    "primary_key": {
+      "integer_primary_key": false,
+      "columns": [
+        {
+          "name": "a",
+          "collation": "BINARY",
+          "direction": "ASC"
+        }
+      ],
+      "autoincrement": false,
+      "on_conflict": null,
+      "index_name": "sqlite_autoindex_t_1"
+    },
+    "unique": [],
+    "checks": null,
+    "foreign_keys": [],
+    "without_rowid": true,
+    "strict": true,
+    "as_select": null
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "sql": "CREATE TABLE t (a TEXT CHECK (a LIKE 'x!%%' ESCAPE '!'))",
+  "ast": {
+    "type": "create_table",
+    "name": "t",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "columns": [
+      {
+        "name": "a",
+        "type": "TEXT",
+        "affinity": "TEXT",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      }
+    ],
+    "primary_key": null,
+    "unique": [],
+    "checks": [
+      {
+        "name": "a LIKE 'x!%%' ESCAPE '!'",
+        "expr": {
+          "type": "function",
+          "name": "LIKE",
+          "args": [
+            {
+              "type": "string",
+              "value": "x!%%"
+            },
+            {
+              "type": "name",
+              "name": "a"
+            },
+            {
+              "type": "string",
+              "value": "!"
+            }
+          ],
+          "distinct": false
+        }
+      }
+    ],
+    "foreign_keys": [],
+    "without_rowid": false,
+    "strict": false,
+    "as_select": null
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "sql": "CREATE TABLE t (a REAL DEFAULT 1.5, b TEXT DEFAULT 'hello', c BLOB DEFAULT x'00ff', d DEFAULT NULL, e DEFAULT TRUE, f DEFAULT FALSE)",
+  "ast": {
+    "type": "create_table",
+    "name": "t",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "columns": [
+      {
+        "name": "a",
+        "type": "REAL",
+        "affinity": "REAL",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": {
+          "type": "span",
+          "text": "1.5",
+          "expr": {
+            "type": "float",
+            "value": "1.5"
+          }
+        },
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      },
+      {
+        "name": "b",
+        "type": "TEXT",
+        "affinity": "TEXT",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": {
+          "type": "span",
+          "text": "'hello'",
+          "expr": {
+            "type": "string",
+            "value": "hello"
+          }
+        },
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      },
+      {
+        "name": "c",
+        "type": "BLOB",
+        "affinity": "BLOB",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": {
+          "type": "span",
+          "text": "x'00ff'",
+          "expr": {
+            "type": "blob",
+            "value": "x'00ff'"
+          }
+        },
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      },
+      {
+        "name": "d",
+        "type": null,
+        "affinity": "BLOB",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": {
+          "type": "span",
+          "text": "NULL",
+          "expr": {
+            "type": "null"
+          }
+        },
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      },
+      {
+        "name": "e",
+        "type": null,
+        "affinity": "BLOB",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": {
+          "type": "span",
+          "text": "TRUE",
+          "expr": {
+            "type": "boolean",
+            "value": true
+          }
+        },
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      },
+      {
+        "name": "f",
+        "type": null,
+        "affinity": "BLOB",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": {
+          "type": "span",
+          "text": "FALSE",
+          "expr": {
+            "type": "boolean",
+            "value": false
+          }
+        },
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      }
+    ],
+    "primary_key": null,
+    "unique": [],
+    "checks": null,
+    "foreign_keys": [],
+    "without_rowid": false,
+    "strict": false,
+    "as_select": null
+  }
+}

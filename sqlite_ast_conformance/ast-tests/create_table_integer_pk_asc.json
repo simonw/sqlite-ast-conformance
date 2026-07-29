@@ -1,0 +1,40 @@
+{
+  "sql": "CREATE TABLE t (id INTEGER PRIMARY KEY ASC)",
+  "ast": {
+    "type": "create_table",
+    "name": "t",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "columns": [
+      {
+        "name": "id",
+        "type": "INTEGER",
+        "affinity": "INTEGER",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": true,
+        "unique": false,
+        "generated": null
+      }
+    ],
+    "primary_key": {
+      "integer_primary_key": true,
+      "columns": [
+        {
+          "name": "id"
+        }
+      ],
+      "autoincrement": false,
+      "on_conflict": null
+    },
+    "unique": [],
+    "checks": null,
+    "foreign_keys": [],
+    "without_rowid": false,
+    "strict": false,
+    "as_select": null
+  }
+}

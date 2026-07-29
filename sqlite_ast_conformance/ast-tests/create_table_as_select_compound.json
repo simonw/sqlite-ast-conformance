@@ -1,0 +1,65 @@
+{
+  "sql": "CREATE TABLE t AS SELECT 1 UNION SELECT 2",
+  "ast": {
+    "type": "create_table",
+    "name": "t",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "columns": null,
+    "primary_key": null,
+    "unique": [],
+    "checks": null,
+    "foreign_keys": [],
+    "without_rowid": false,
+    "strict": false,
+    "as_select": {
+      "type": "compound",
+      "body": [
+        {
+          "select": {
+            "type": "select",
+            "distinct": false,
+            "all": false,
+            "columns": [
+              {
+                "expr": {
+                  "type": "integer",
+                  "value": 1
+                },
+                "alias": null
+              }
+            ],
+            "from": null,
+            "where": null,
+            "group_by": null,
+            "having": null
+          }
+        },
+        {
+          "operator": "UNION",
+          "select": {
+            "type": "select",
+            "distinct": false,
+            "all": false,
+            "columns": [
+              {
+                "expr": {
+                  "type": "integer",
+                  "value": 2
+                },
+                "alias": null
+              }
+            ],
+            "from": null,
+            "where": null,
+            "group_by": null,
+            "having": null
+          }
+        }
+      ],
+      "order_by": null,
+      "limit": null
+    }
+  }
+}

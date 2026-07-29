@@ -1,0 +1,113 @@
+{
+  "sql": "CREATE TABLE t (a CHECK (NOT a = 5), b CHECK (-b < 0), c CHECK (~c > 0))",
+  "ast": {
+    "type": "create_table",
+    "name": "t",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "columns": [
+      {
+        "name": "a",
+        "type": null,
+        "affinity": "BLOB",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      },
+      {
+        "name": "b",
+        "type": null,
+        "affinity": "BLOB",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      },
+      {
+        "name": "c",
+        "type": null,
+        "affinity": "BLOB",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      }
+    ],
+    "primary_key": null,
+    "unique": [],
+    "checks": [
+      {
+        "name": "NOT a = 5",
+        "expr": {
+          "type": "unary",
+          "op": "NOT",
+          "operand": {
+            "type": "binary",
+            "op": "=",
+            "left": {
+              "type": "name",
+              "name": "a"
+            },
+            "right": {
+              "type": "integer",
+              "value": 5
+            }
+          }
+        }
+      },
+      {
+        "name": "-b < 0",
+        "expr": {
+          "type": "binary",
+          "op": "<",
+          "left": {
+            "type": "unary",
+            "op": "-",
+            "operand": {
+              "type": "name",
+              "name": "b"
+            }
+          },
+          "right": {
+            "type": "integer",
+            "value": 0
+          }
+        }
+      },
+      {
+        "name": "~c > 0",
+        "expr": {
+          "type": "binary",
+          "op": ">",
+          "left": {
+            "type": "unary",
+            "op": "~",
+            "operand": {
+              "type": "name",
+              "name": "c"
+            }
+          },
+          "right": {
+            "type": "integer",
+            "value": 0
+          }
+        }
+      }
+    ],
+    "foreign_keys": [],
+    "without_rowid": false,
+    "strict": false,
+    "as_select": null
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "sql": "CREATE TABLE t (a TEXT CHECK (a NOT LIKE '%y'))",
+  "ast": {
+    "type": "create_table",
+    "name": "t",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "columns": [
+      {
+        "name": "a",
+        "type": "TEXT",
+        "affinity": "TEXT",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      }
+    ],
+    "primary_key": null,
+    "unique": [],
+    "checks": [
+      {
+        "name": "a NOT LIKE '%y'",
+        "expr": {
+          "type": "unary",
+          "op": "NOT",
+          "operand": {
+            "type": "function",
+            "name": "LIKE",
+            "args": [
+              {
+                "type": "string",
+                "value": "%y"
+              },
+              {
+                "type": "name",
+                "name": "a"
+              }
+            ],
+            "distinct": false
+          }
+        }
+      }
+    ],
+    "foreign_keys": [],
+    "without_rowid": false,
+    "strict": false,
+    "as_select": null
+  }
+}

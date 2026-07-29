@@ -1,0 +1,251 @@
+{
+  "sql": "CREATE TABLE IF NOT EXISTS orders (id INTEGER PRIMARY KEY AUTOINCREMENT, customer_id INT NOT NULL REFERENCES customers(id) ON DELETE CASCADE, status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'shipped', 'delivered')), total REAL CHECK (total >= 0), discount REAL DEFAULT 0.0, net REAL GENERATED ALWAYS AS (total - discount) STORED, created_at TEXT DEFAULT CURRENT_TIMESTAMP, note TEXT COLLATE NOCASE, UNIQUE (customer_id, created_at), CONSTRAINT valid_discount CHECK (discount BETWEEN 0 AND total))",
+  "ast": {
+    "type": "create_table",
+    "name": "orders",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": true,
+    "columns": [
+      {
+        "name": "id",
+        "type": "INTEGER",
+        "affinity": "INTEGER",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": true,
+        "unique": false,
+        "generated": null
+      },
+      {
+        "name": "customer_id",
+        "type": "INT",
+        "affinity": "INTEGER",
+        "not_null": true,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      },
+      {
+        "name": "status",
+        "type": "TEXT",
+        "affinity": "TEXT",
+        "not_null": true,
+        "not_null_on_conflict": null,
+        "default": {
+          "type": "span",
+          "text": "'pending'",
+          "expr": {
+            "type": "string",
+            "value": "pending"
+          }
+        },
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      },
+      {
+        "name": "total",
+        "type": "REAL",
+        "affinity": "REAL",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      },
+      {
+        "name": "discount",
+        "type": "REAL",
+        "affinity": "REAL",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": {
+          "type": "span",
+          "text": "0.0",
+          "expr": {
+            "type": "float",
+            "value": "0.0"
+          }
+        },
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      },
+      {
+        "name": "net",
+        "type": "REAL",
+        "affinity": "REAL",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": {
+          "expr": {
+            "type": "binary",
+            "op": "-",
+            "left": {
+              "type": "name",
+              "name": "total"
+            },
+            "right": {
+              "type": "name",
+              "name": "discount"
+            }
+          },
+          "stored": true
+        }
+      },
+      {
+        "name": "created_at",
+        "type": "TEXT",
+        "affinity": "TEXT",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": {
+          "type": "span",
+          "text": "CURRENT_TIMESTAMP",
+          "expr": {
+            "type": "function",
+            "name": "CURRENT_TIMESTAMP",
+            "args": [],
+            "distinct": false
+          }
+        },
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      },
+      {
+        "name": "note",
+        "type": "TEXT",
+        "affinity": "TEXT",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": "NOCASE",
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      }
+    ],
+    "primary_key": {
+      "integer_primary_key": true,
+      "columns": [
+        {
+          "name": "id"
+        }
+      ],
+      "autoincrement": true,
+      "on_conflict": null
+    },
+    "unique": [
+      {
+        "columns": [
+          {
+            "name": "customer_id",
+            "collation": "BINARY",
+            "direction": "ASC"
+          },
+          {
+            "name": "created_at",
+            "collation": "BINARY",
+            "direction": "ASC"
+          }
+        ],
+        "on_conflict": null,
+        "index_name": "sqlite_autoindex_orders_1"
+      }
+    ],
+    "checks": [
+      {
+        "name": "status IN ('pending', 'shipped', 'delivered')",
+        "expr": {
+          "type": "in",
+          "expr": {
+            "type": "name",
+            "name": "status"
+          },
+          "values": [
+            {
+              "type": "string",
+              "value": "pending"
+            },
+            {
+              "type": "string",
+              "value": "shipped"
+            },
+            {
+              "type": "string",
+              "value": "delivered"
+            }
+          ]
+        }
+      },
+      {
+        "name": "total >= 0",
+        "expr": {
+          "type": "binary",
+          "op": ">=",
+          "left": {
+            "type": "name",
+            "name": "total"
+          },
+          "right": {
+            "type": "integer",
+            "value": 0
+          }
+        }
+      },
+      {
+        "name": "valid_discount",
+        "expr": {
+          "type": "between",
+          "expr": {
+            "type": "name",
+            "name": "discount"
+          },
+          "low": {
+            "type": "integer",
+            "value": 0
+          },
+          "high": {
+            "type": "name",
+            "name": "total"
+          }
+        }
+      }
+    ],
+    "foreign_keys": [
+      {
+        "columns": [
+          "customer_id"
+        ],
+        "references": {
+          "table": "customers",
+          "columns": [
+            "id"
+          ]
+        },
+        "on_delete": "CASCADE",
+        "on_update": "NO ACTION",
+        "deferred": false
+      }
+    ],
+    "without_rowid": false,
+    "strict": false,
+    "as_select": null
+  }
+}

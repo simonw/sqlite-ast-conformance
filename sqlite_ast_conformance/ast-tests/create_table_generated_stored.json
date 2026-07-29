@@ -1,0 +1,57 @@
+{
+  "sql": "CREATE TABLE t (a INT, b INT GENERATED ALWAYS AS (a * 2) STORED)",
+  "ast": {
+    "type": "create_table",
+    "name": "t",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "columns": [
+      {
+        "name": "a",
+        "type": "INT",
+        "affinity": "INTEGER",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      },
+      {
+        "name": "b",
+        "type": "INT",
+        "affinity": "INTEGER",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": {
+          "expr": {
+            "type": "binary",
+            "op": "*",
+            "left": {
+              "type": "name",
+              "name": "a"
+            },
+            "right": {
+              "type": "integer",
+              "value": 2
+            }
+          },
+          "stored": true
+        }
+      }
+    ],
+    "primary_key": null,
+    "unique": [],
+    "checks": null,
+    "foreign_keys": [],
+    "without_rowid": false,
+    "strict": false,
+    "as_select": null
+  }
+}
