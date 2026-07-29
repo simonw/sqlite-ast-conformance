@@ -25,6 +25,12 @@ The ASTs represent the **raw parse tree** produced by SQLite's Lemon parser, cap
 - `SELECT foo.bar` produces a `dot` node with `name` children — no table lookups
 - All tests run against an in-memory database with no tables
 
+SQLite incrementally compiles constant multi-row `VALUES` clauses into a VDBE
+co-routine while the Lemon parser is still running. At the point where this
+project captures `Select*`, the tree is equivalent to
+`SELECT * FROM (SELECT <first row>)`; subsequent rows live only in the VDBE
+program and are not present in the captured tree.
+
 ## Test file format
 
 Each JSON file in `sqlite_ast_conformance/ast-tests/` has two keys:
