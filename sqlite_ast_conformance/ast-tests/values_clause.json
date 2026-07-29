@@ -1,55 +1,38 @@
 {
   "sql": "VALUES (1, 2), (3, 4), (5, 6)",
   "ast": {
-    "type": "select",
-    "distinct": false,
-    "all": false,
-    "columns": [
-      {
-        "expr": {
-          "type": "star"
+    "type": "values",
+    "rows": [
+      [
+        {
+          "type": "integer",
+          "value": 1
         },
-        "alias": null
-      }
-    ],
-    "from": [
-      {
-        "type": "subquery",
-        "select": {
-          "type": "select",
-          "distinct": false,
-          "all": false,
-          "columns": [
-            {
-              "expr": {
-                "type": "integer",
-                "value": 1
-              },
-              "alias": null
-            },
-            {
-              "expr": {
-                "type": "integer",
-                "value": 2
-              },
-              "alias": null
-            }
-          ],
-          "from": null,
-          "where": null,
-          "group_by": null,
-          "having": null,
-          "order_by": null,
-          "limit": null
+        {
+          "type": "integer",
+          "value": 2
+        }
+      ],
+      [
+        {
+          "type": "integer",
+          "value": 3
         },
-        "alias": null,
-        "join_type": null
-      }
-    ],
-    "where": null,
-    "group_by": null,
-    "having": null,
-    "order_by": null,
-    "limit": null
+        {
+          "type": "integer",
+          "value": 4
+        }
+      ],
+      [
+        {
+          "type": "integer",
+          "value": 5
+        },
+        {
+          "type": "integer",
+          "value": 6
+        }
+      ]
+    ]
   }
 }

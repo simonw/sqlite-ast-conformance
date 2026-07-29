@@ -23,12 +23,143 @@
  * for "cmd ::= select(X)", passing the Select* as void*.
  * ---------------------------------------------------------------- */
 void ast_capture_hook(void *select_ptr);
+void ast_values_first_hook(void *parse_ptr, void *select_ptr);
+void *ast_values_append_hook(void *parse_ptr, void *select_ptr, void *row_ptr);
 
 /* ----------------------------------------------------------------
  * Include the patched SQLite amalgamation.
  * This gives us access to all internal types (Select, Expr, etc.)
  * ---------------------------------------------------------------- */
 #include "build/sqlite3_patched.c"
+
+/* ================================================================
+ * Lossless VALUES capture
+ *
+ * SQLite compiles constant multi-row VALUES clauses into VDBE bytecode
+ * during parsing and deletes the ExprList for every row after the first.
+ * The patched grammar actions call these hooks before that happens so the
+ * serialized syntax tree can retain every row.
+ * ================================================================ */
+
+typedef struct AstValuesCapture AstValuesCapture;
+struct AstValuesCapture {
+    Select *pSelect;
+    Select *pInternalPrior;
+    sqlite3 *db;
+    ExprList **rows;
+    int nRows;
+    int capacity;
+    AstValuesCapture *pNext;
+};
+
+static int g_capture_enabled = 0;
+static int g_captured = 0;
+static int g_capture_error = 0;
+static AstValuesCapture *g_values_captures = NULL;
+
+static AstValuesCapture *ast_values_find(const Select *pSelect) {
+    AstValuesCapture *p;
+    for (p = g_values_captures; p; p = p->pNext) {
+        if (p->pSelect == pSelect) return p;
+    }
+    return NULL;
+}
+
+static int ast_values_add_row(
+    AstValuesCapture *pCapture,
+    ExprList *pRow
+) {
+    if (pCapture->nRows == pCapture->capacity) {
+        int newCapacity = pCapture->capacity ? pCapture->capacity * 2 : 4;
+        ExprList **newRows = realloc(
+            pCapture->rows,
+            (size_t)newCapacity * sizeof(ExprList *)
+        );
+        if (newRows == NULL) {
+            sqlite3ExprListDelete(pCapture->db, pRow);
+            g_capture_error = 1;
+            return 0;
+        }
+        pCapture->rows = newRows;
+        pCapture->capacity = newCapacity;
+    }
+    pCapture->rows[pCapture->nRows++] = pRow;
+    return 1;
+}
+
+static void ast_values_clear(void) {
+    AstValuesCapture *p = g_values_captures;
+    while (p) {
+        AstValuesCapture *pNext = p->pNext;
+        for (int i = 0; i < p->nRows; i++) {
+            sqlite3ExprListDelete(p->db, p->rows[i]);
+        }
+        free(p->rows);
+        free(p);
+        p = pNext;
+    }
+    g_values_captures = NULL;
+}
+
+void ast_values_first_hook(void *parse_ptr, void *select_ptr) {
+    Parse *pParse = (Parse *)parse_ptr;
+    Select *pSelect = (Select *)select_ptr;
+    AstValuesCapture *pCapture;
+    ExprList *pRow;
+
+    if (!g_capture_enabled || pParse->db->init.busy || pSelect == NULL) return;
+
+    pRow = sqlite3ExprListDup(pParse->db, pSelect->pEList, 0);
+    if (pRow == NULL) {
+        g_capture_error = 1;
+        return;
+    }
+
+    pCapture = calloc(1, sizeof(AstValuesCapture));
+    if (pCapture == NULL) {
+        sqlite3ExprListDelete(pParse->db, pRow);
+        g_capture_error = 1;
+        return;
+    }
+
+    pCapture->pSelect = pSelect;
+    pCapture->pInternalPrior = pSelect->pPrior;
+    pCapture->db = pParse->db;
+    pCapture->pNext = g_values_captures;
+    g_values_captures = pCapture;
+    ast_values_add_row(pCapture, pRow);
+}
+
+void *ast_values_append_hook(
+    void *parse_ptr,
+    void *select_ptr,
+    void *row_ptr
+) {
+    Parse *pParse = (Parse *)parse_ptr;
+    Select *pSelect = (Select *)select_ptr;
+    ExprList *pRow = (ExprList *)row_ptr;
+    AstValuesCapture *pCapture = NULL;
+    ExprList *pRowCopy = NULL;
+    Select *pResult;
+
+    if (g_capture_enabled && !pParse->db->init.busy) {
+        pCapture = ast_values_find(pSelect);
+        if (pCapture) {
+            pRowCopy = sqlite3ExprListDup(pParse->db, pRow, 0);
+            if (pRowCopy == NULL) g_capture_error = 1;
+        }
+    }
+
+    pResult = sqlite3MultiValues(pParse, pSelect, pRow);
+
+    if (pCapture) {
+        pCapture->pSelect = pResult;
+        pCapture->pInternalPrior = pResult ? pResult->pPrior : NULL;
+        if (pRowCopy) ast_values_add_row(pCapture, pRowCopy);
+    }
+
+    return pResult;
+}
 
 /* ================================================================
  * JSON Writer (pretty-printed with 2-space indentation)
@@ -853,9 +984,29 @@ static void json_window(const Window *pWin) {
  * AST Serialization - SELECT Statement
  * ================================================================ */
 
+static void json_values_capture(const AstValuesCapture *pValues) {
+    jw_obj_start();
+    jw_key_str("type", "values");
+    jw_key("rows");
+    jw_arr_start();
+    for (int i = 0; i < pValues->nRows; i++) {
+        json_expr_list(pValues->rows[i]);
+    }
+    jw_arr_end();
+    jw_obj_end();
+}
+
 static void json_select(const Select *p) {
+    AstValuesCapture *pValues;
+
     if (p == NULL) {
         jw_null();
+        return;
+    }
+
+    pValues = ast_values_find(p);
+    if (pValues && p->pPrior == pValues->pInternalPrior) {
+        json_values_capture(pValues);
         return;
     }
 
@@ -865,16 +1016,33 @@ static void json_select(const Select *p) {
     ** We want to output in left-to-right order, so first collect them.
     */
     if (p->pPrior) {
-        /* Count the chain */
-        int count = 0;
+        /* Count the uncollapsed chain to obtain an upper allocation bound. */
+        int maxCount = 0;
         const Select *q;
-        for (q = p; q != NULL; q = q->pPrior) count++;
+        for (q = p; q != NULL; q = q->pPrior) maxCount++;
 
-        /* Collect pointers in order */
-        const Select **arr = sqlite3_malloc64(count * sizeof(Select *));
+        /*
+        ** Collect terms from right to left. A VALUES capture may cover an
+        ** internal pPrior chain created by sqlite3MultiValues(); collapse that
+        ** whole chain into one syntax term.
+        */
+        const Select **arr = sqlite3_malloc64(maxCount * sizeof(Select *));
         if (arr == NULL) { jw_null(); return; }
-        int idx = count;
-        for (q = p; q != NULL; q = q->pPrior) arr[--idx] = q;
+        int count = 0;
+        for (q = p; q != NULL; ) {
+            AstValuesCapture *pTermValues = ast_values_find(q);
+            arr[count++] = q;
+            if (pTermValues && q->pPrior == pTermValues->pInternalPrior) {
+                q = NULL;
+            } else {
+                q = q->pPrior;
+            }
+        }
+        for (int left = 0, right = count - 1; left < right; left++, right--) {
+            const Select *tmp = arr[left];
+            arr[left] = arr[right];
+            arr[right] = tmp;
+        }
 
         jw_obj_start();
         jw_key_str("type", "compound");
@@ -893,23 +1061,31 @@ static void json_select(const Select *p) {
                 jw_key_str("operator", zOp);
             }
             jw_key("select");
-            /* Output this individual select (non-compound parts) */
-            jw_obj_start();
-            jw_key_str("type", "select");
-            jw_key_bool("distinct", (arr[i]->selFlags & SF_Distinct) ? 1 : 0);
-            jw_key_bool("all", (arr[i]->selFlags & SF_All) ? 1 : 0);
-            jw_key("columns");
-            json_result_columns(arr[i]->pEList);
-            jw_key("from");
-            json_src_list(arr[i]->pSrc);
-            jw_key("where");
-            json_expr(arr[i]->pWhere);
-            jw_key("group_by");
-            json_expr_list(arr[i]->pGroupBy);
-            jw_key("having");
-            json_expr(arr[i]->pHaving);
-            /* Note: ORDER BY and LIMIT are on the outermost select only */
-            jw_obj_end();
+            AstValuesCapture *pPartValues = ast_values_find(arr[i]);
+            if (pPartValues) {
+                json_values_capture(pPartValues);
+            } else {
+                /* Output this individual select (non-compound parts) */
+                jw_obj_start();
+                jw_key_str("type", "select");
+                jw_key_bool(
+                    "distinct",
+                    (arr[i]->selFlags & SF_Distinct) ? 1 : 0
+                );
+                jw_key_bool("all", (arr[i]->selFlags & SF_All) ? 1 : 0);
+                jw_key("columns");
+                json_result_columns(arr[i]->pEList);
+                jw_key("from");
+                json_src_list(arr[i]->pSrc);
+                jw_key("where");
+                json_expr(arr[i]->pWhere);
+                jw_key("group_by");
+                json_expr_list(arr[i]->pGroupBy);
+                jw_key("having");
+                json_expr(arr[i]->pHaving);
+                /* Note: ORDER BY and LIMIT are on the outermost select only */
+                jw_obj_end();
+            }
             jw_obj_end();
         }
         jw_arr_end();
@@ -930,6 +1106,12 @@ static void json_select(const Select *p) {
         }
         jw_obj_end();
         sqlite3_free(arr);
+        return;
+    }
+
+    pValues = ast_values_find(p);
+    if (pValues) {
+        json_values_capture(pValues);
         return;
     }
 
@@ -1002,10 +1184,6 @@ static void json_select(const Select *p) {
  * Hook Function - Called from patched grammar action
  * ================================================================ */
 
-/* Flags to control AST capture */
-static int g_capture_enabled = 0;
-static int g_captured = 0;
-
 void ast_capture_hook(void *select_ptr) {
     if (!g_capture_enabled) return;
     if (g_captured) return;  /* Only capture the first SELECT (the user's query) */
@@ -1040,6 +1218,7 @@ int main(int argc, char **argv) {
     /* Enable AST capture */
     g_capture_enabled = 1;
     g_captured = 0;
+    g_capture_error = 0;
     jw_init();
 
     /*
@@ -1050,6 +1229,14 @@ int main(int argc, char **argv) {
     */
     rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
 
+    if (g_capture_error) {
+        fprintf(stderr, "Failed to capture VALUES rows\n");
+        if (stmt) sqlite3_finalize(stmt);
+        ast_values_clear();
+        sqlite3_close(db);
+        return 1;
+    }
+
     if (g_pos == 0) {
         /* No AST was captured - probably a parse error */
         if (rc != SQLITE_OK) {
@@ -1057,6 +1244,7 @@ int main(int argc, char **argv) {
         } else {
             fprintf(stderr, "No SELECT statement found in input\n");
         }
+        ast_values_clear();
         sqlite3_close(db);
         return 1;
     }
@@ -1065,6 +1253,7 @@ int main(int argc, char **argv) {
     printf("%s\n", g_buf);
 
     if (stmt) sqlite3_finalize(stmt);
+    ast_values_clear();
     sqlite3_close(db);
     return 0;
 }

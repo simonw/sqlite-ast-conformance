@@ -1,0 +1,18 @@
+{
+  "sql": "VALUES (1, 2)",
+  "ast": {
+    "type": "values",
+    "rows": [
+      [
+        {
+          "type": "integer",
+          "value": 1
+        },
+        {
+          "type": "integer",
+          "value": 2
+        }
+      ]
+    ]
+  }
+}

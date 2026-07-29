@@ -1,0 +1,59 @@
+{
+  "sql": "WITH cte AS (VALUES (1, 2), (3, 4)) SELECT * FROM cte",
+  "ast": {
+    "type": "select",
+    "distinct": false,
+    "all": false,
+    "with": [
+      {
+        "name": "cte",
+        "select": {
+          "type": "values",
+          "rows": [
+            [
+              {
+                "type": "integer",
+                "value": 1
+              },
+              {
+                "type": "integer",
+                "value": 2
+              }
+            ],
+            [
+              {
+                "type": "integer",
+                "value": 3
+              },
+              {
+                "type": "integer",
+                "value": 4
+              }
+            ]
+          ]
+        }
+      }
+    ],
+    "columns": [
+      {
+        "expr": {
+          "type": "star"
+        },
+        "alias": null
+      }
+    ],
+    "from": [
+      {
+        "type": "table",
+        "name": "cte",
+        "alias": null,
+        "join_type": null
+      }
+    ],
+    "where": null,
+    "group_by": null,
+    "having": null,
+    "order_by": null,
+    "limit": null
+  }
+}
