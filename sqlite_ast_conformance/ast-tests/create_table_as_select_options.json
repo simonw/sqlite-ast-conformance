@@ -1,0 +1,43 @@
+{
+  "sql": "CREATE TEMP TABLE IF NOT EXISTS t AS SELECT * FROM src",
+  "ast": {
+    "type": "create_table",
+    "name": "t",
+    "schema": null,
+    "temp": true,
+    "if_not_exists": true,
+    "columns": null,
+    "primary_key": null,
+    "unique": [],
+    "checks": null,
+    "foreign_keys": [],
+    "without_rowid": false,
+    "strict": false,
+    "as_select": {
+      "type": "select",
+      "distinct": false,
+      "all": false,
+      "columns": [
+        {
+          "expr": {
+            "type": "star"
+          },
+          "alias": null
+        }
+      ],
+      "from": [
+        {
+          "type": "table",
+          "name": "src",
+          "alias": null,
+          "join_type": null
+        }
+      ],
+      "where": null,
+      "group_by": null,
+      "having": null,
+      "order_by": null,
+      "limit": null
+    }
+  }
+}

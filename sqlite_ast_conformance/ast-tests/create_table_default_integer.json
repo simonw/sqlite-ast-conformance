@@ -1,0 +1,38 @@
+{
+  "sql": "CREATE TABLE t (a INT DEFAULT 42)",
+  "ast": {
+    "type": "create_table",
+    "name": "t",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "columns": [
+      {
+        "name": "a",
+        "type": "INT",
+        "affinity": "INTEGER",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": {
+          "type": "span",
+          "text": "42",
+          "expr": {
+            "type": "integer",
+            "value": 42
+          }
+        },
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      }
+    ],
+    "primary_key": null,
+    "unique": [],
+    "checks": null,
+    "foreign_keys": [],
+    "without_rowid": false,
+    "strict": false,
+    "as_select": null
+  }
+}

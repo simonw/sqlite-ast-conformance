@@ -1,0 +1,44 @@
+{
+  "sql": "CREATE TABLE t (a REFERENCES parent)",
+  "ast": {
+    "type": "create_table",
+    "name": "t",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "columns": [
+      {
+        "name": "a",
+        "type": null,
+        "affinity": "BLOB",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      }
+    ],
+    "primary_key": null,
+    "unique": [],
+    "checks": null,
+    "foreign_keys": [
+      {
+        "columns": [
+          "a"
+        ],
+        "references": {
+          "table": "parent",
+          "columns": null
+        },
+        "on_delete": "NO ACTION",
+        "on_update": "NO ACTION",
+        "deferred": false
+      }
+    ],
+    "without_rowid": false,
+    "strict": false,
+    "as_select": null
+  }
+}

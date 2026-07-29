@@ -1,0 +1,43 @@
+{
+  "sql": "CREATE TABLE t (a TEXT, UNIQUE (a COLLATE RTRIM DESC))",
+  "ast": {
+    "type": "create_table",
+    "name": "t",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "columns": [
+      {
+        "name": "a",
+        "type": "TEXT",
+        "affinity": "TEXT",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      }
+    ],
+    "primary_key": null,
+    "unique": [
+      {
+        "columns": [
+          {
+            "name": "a",
+            "collation": "RTRIM",
+            "direction": "DESC"
+          }
+        ],
+        "on_conflict": null,
+        "index_name": "sqlite_autoindex_t_1"
+      }
+    ],
+    "checks": null,
+    "foreign_keys": [],
+    "without_rowid": false,
+    "strict": false,
+    "as_select": null
+  }
+}

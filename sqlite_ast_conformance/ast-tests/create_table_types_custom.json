@@ -1,0 +1,79 @@
+{
+  "sql": "CREATE TABLE t (a VARCHAR(10), b DOUBLE PRECISION, c DECIMAL(10, 5), d UNSIGNED BIG INT, e CHARACTER(20))",
+  "ast": {
+    "type": "create_table",
+    "name": "t",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "columns": [
+      {
+        "name": "a",
+        "type": "VARCHAR(10)",
+        "affinity": "TEXT",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      },
+      {
+        "name": "b",
+        "type": "DOUBLE PRECISION",
+        "affinity": "REAL",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      },
+      {
+        "name": "c",
+        "type": "DECIMAL(10, 5)",
+        "affinity": "NUMERIC",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      },
+      {
+        "name": "d",
+        "type": "UNSIGNED BIG INT",
+        "affinity": "INTEGER",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      },
+      {
+        "name": "e",
+        "type": "CHARACTER(20)",
+        "affinity": "TEXT",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      }
+    ],
+    "primary_key": null,
+    "unique": [],
+    "checks": null,
+    "foreign_keys": [],
+    "without_rowid": false,
+    "strict": false,
+    "as_select": null
+  }
+}

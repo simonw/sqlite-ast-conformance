@@ -1,0 +1,31 @@
+{
+  "sql": "CREATE TABLE IF NOT EXISTS t (a)",
+  "ast": {
+    "type": "create_table",
+    "name": "t",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": true,
+    "columns": [
+      {
+        "name": "a",
+        "type": null,
+        "affinity": "BLOB",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      }
+    ],
+    "primary_key": null,
+    "unique": [],
+    "checks": null,
+    "foreign_keys": [],
+    "without_rowid": false,
+    "strict": false,
+    "as_select": null
+  }
+}

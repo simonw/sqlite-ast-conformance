@@ -1,0 +1,42 @@
+{
+  "sql": "CREATE TABLE t (a CHECK (a IS NOT NULL))",
+  "ast": {
+    "type": "create_table",
+    "name": "t",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "columns": [
+      {
+        "name": "a",
+        "type": null,
+        "affinity": "BLOB",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      }
+    ],
+    "primary_key": null,
+    "unique": [],
+    "checks": [
+      {
+        "name": "a IS NOT NULL",
+        "expr": {
+          "type": "notnull",
+          "operand": {
+            "type": "name",
+            "name": "a"
+          }
+        }
+      }
+    ],
+    "foreign_keys": [],
+    "without_rowid": false,
+    "strict": false,
+    "as_select": null
+  }
+}

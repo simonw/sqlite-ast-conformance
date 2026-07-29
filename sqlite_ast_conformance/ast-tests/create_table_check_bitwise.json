@@ -1,0 +1,90 @@
+{
+  "sql": "CREATE TABLE t (flags INT CHECK (flags & 3 = 0), b INT CHECK (b << 1 < 100))",
+  "ast": {
+    "type": "create_table",
+    "name": "t",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "columns": [
+      {
+        "name": "flags",
+        "type": "INT",
+        "affinity": "INTEGER",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      },
+      {
+        "name": "b",
+        "type": "INT",
+        "affinity": "INTEGER",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      }
+    ],
+    "primary_key": null,
+    "unique": [],
+    "checks": [
+      {
+        "name": "flags & 3 = 0",
+        "expr": {
+          "type": "binary",
+          "op": "=",
+          "left": {
+            "type": "binary",
+            "op": "&",
+            "left": {
+              "type": "name",
+              "name": "flags"
+            },
+            "right": {
+              "type": "integer",
+              "value": 3
+            }
+          },
+          "right": {
+            "type": "integer",
+            "value": 0
+          }
+        }
+      },
+      {
+        "name": "b << 1 < 100",
+        "expr": {
+          "type": "binary",
+          "op": "<",
+          "left": {
+            "type": "binary",
+            "op": "<<",
+            "left": {
+              "type": "name",
+              "name": "b"
+            },
+            "right": {
+              "type": "integer",
+              "value": 1
+            }
+          },
+          "right": {
+            "type": "integer",
+            "value": 100
+          }
+        }
+      }
+    ],
+    "foreign_keys": [],
+    "without_rowid": false,
+    "strict": false,
+    "as_select": null
+  }
+}

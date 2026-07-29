@@ -1,0 +1,53 @@
+{
+  "sql": "CREATE TABLE t (a INT, b AS (a))",
+  "ast": {
+    "type": "create_table",
+    "name": "t",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "columns": [
+      {
+        "name": "a",
+        "type": "INT",
+        "affinity": "INTEGER",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      },
+      {
+        "name": "b",
+        "type": null,
+        "affinity": "BLOB",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": {
+          "expr": {
+            "type": "unary",
+            "op": "+",
+            "operand": {
+              "type": "name",
+              "name": "a"
+            }
+          },
+          "stored": false
+        }
+      }
+    ],
+    "primary_key": null,
+    "unique": [],
+    "checks": null,
+    "foreign_keys": [],
+    "without_rowid": false,
+    "strict": false,
+    "as_select": null
+  }
+}

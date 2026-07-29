@@ -1,0 +1,55 @@
+{
+  "sql": "CREATE TABLE \"my table\" (\"a col\" TEXT, [b] INT, `c` REAL)",
+  "ast": {
+    "type": "create_table",
+    "name": "my table",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "columns": [
+      {
+        "name": "a col",
+        "type": "TEXT",
+        "affinity": "TEXT",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      },
+      {
+        "name": "b",
+        "type": "INT",
+        "affinity": "INTEGER",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      },
+      {
+        "name": "c",
+        "type": "REAL",
+        "affinity": "REAL",
+        "not_null": false,
+        "not_null_on_conflict": null,
+        "default": null,
+        "collate": null,
+        "primary_key": false,
+        "unique": false,
+        "generated": null
+      }
+    ],
+    "primary_key": null,
+    "unique": [],
+    "checks": null,
+    "foreign_keys": [],
+    "without_rowid": false,
+    "strict": false,
+    "as_select": null
+  }
+}

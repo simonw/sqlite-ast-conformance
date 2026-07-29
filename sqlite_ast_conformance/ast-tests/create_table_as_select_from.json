@@ -1,0 +1,62 @@
+{
+  "sql": "CREATE TABLE t AS SELECT a, b FROM src WHERE a > 5",
+  "ast": {
+    "type": "create_table",
+    "name": "t",
+    "schema": null,
+    "temp": false,
+    "if_not_exists": false,
+    "columns": null,
+    "primary_key": null,
+    "unique": [],
+    "checks": null,
+    "foreign_keys": [],
+    "without_rowid": false,
+    "strict": false,
+    "as_select": {
+      "type": "select",
+      "distinct": false,
+      "all": false,
+      "columns": [
+        {
+          "expr": {
+            "type": "name",
+            "name": "a"
+          },
+          "alias": null
+        },
+        {
+          "expr": {
+            "type": "name",
+            "name": "b"
+          },
+          "alias": null
+        }
+      ],
+      "from": [
+        {
+          "type": "table",
+          "name": "src",
+          "alias": null,
+          "join_type": null
+        }
+      ],
+      "where": {
+        "type": "binary",
+        "op": ">",
+        "left": {
+          "type": "name",
+          "name": "a"
+        },
+        "right": {
+          "type": "integer",
+          "value": 5
+        }
+      },
+      "group_by": null,
+      "having": null,
+      "order_by": null,
+      "limit": null
+    }
+  }
+}
