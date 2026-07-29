@@ -1,0 +1,50 @@
+{
+  "sql": "SELECT 0 UNION ALL VALUES (1), (2)",
+  "ast": {
+    "type": "compound",
+    "body": [
+      {
+        "select": {
+          "type": "select",
+          "distinct": false,
+          "all": false,
+          "columns": [
+            {
+              "expr": {
+                "type": "integer",
+                "value": 0
+              },
+              "alias": null
+            }
+          ],
+          "from": null,
+          "where": null,
+          "group_by": null,
+          "having": null
+        }
+      },
+      {
+        "operator": "UNION ALL",
+        "select": {
+          "type": "values",
+          "rows": [
+            [
+              {
+                "type": "integer",
+                "value": 1
+              }
+            ],
+            [
+              {
+                "type": "integer",
+                "value": 2
+              }
+            ]
+          ]
+        }
+      }
+    ],
+    "order_by": null,
+    "limit": null
+  }
+}

@@ -19,11 +19,18 @@ for test_file in sorted(AST_TESTS_DIR.glob("*.json")):
 
 ## How it works
 
-The ASTs represent the **raw parse tree** produced by SQLite's Lemon parser, captured *before* any name resolution or `SELECT *` expansion. This means:
+The ASTs represent the syntax recognized by SQLite's Lemon parser, captured
+*before* any name resolution or `SELECT *` expansion. This means:
 
 - `SELECT *` produces `{"type": "star"}` — no schema knowledge needed
 - `SELECT foo.bar` produces a `dot` node with `name` children — no table lookups
 - All tests run against an in-memory database with no tables
+
+SQLite incrementally compiles constant multi-row `VALUES` clauses into a VDBE
+co-routine while the Lemon parser is still running, deleting each row after it
+has been compiled. The reference tool hooks the `values` and `mvalues` grammar
+reductions to preserve every row in a lossless `values` node before that
+optimization occurs.
 
 ## Test file format
 
@@ -161,6 +168,15 @@ type: "select"
 ```
 
 Compound selects (`UNION`, `INTERSECT`, `EXCEPT`) use `type: "compound"` with a `body` array.
+
+### VALUES
+
+```
+type: "values"
+└── rows: [[expr, ...], ...]
+```
+
+Each inner array is one parenthesized row from the original `VALUES` clause.
 
 ## Using these tests in your own parser
 
